@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        .admin-nav { background: #12121a; border-bottom: 1px solid #27272a; padding: 0 24px; display: flex; align-items: center; height: 56px; }
+        .admin-nav a { color: #a1a1aa; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
+        .admin-nav a:hover, .admin-nav a.active { color: #e4e4e7; border-bottom-color: #4f8eff; }
+        .admin-nav .spacer { flex: 1; }
+        .admin-nav .brand { color: #4f8eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+        .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #a1a1aa; border-bottom: 1px solid #27272a; }
+        td { padding: 12px 16px; border-bottom: 1px solid #1a1a24; font-size: 14px; }
+        .btn { display: inline-block; padding: 8px 16px; background: #4f8eff; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn:hover { background: #3b7aed; }
+        .btn-danger { background: #ef4444; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-visible { background: #0d3320; color: #4ade80; }
+        .badge-hidden { background: #3b1219; color: #f87171; }
+        .actions { display: flex; gap: 8px; }
+        .inline-form { display: inline; }
+    </style>
+</head>
+<body>
+    <nav class="admin-nav">
+        <span class="brand">Admin</span>
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/projects" class="active">Projects</a>
+        <a href="/admin/profile">Profile</a>
+        <a href="/admin/themes">Themes</a>
+        <a href="/admin/analytics">Analytics</a>
+        <span class="spacer"></span>
+        <a href="/" target="_blank">View Site</a>
+        <a href="/admin/logout">Logout</a>
+    </nav>
+    <div class="content">
+        <div class="toolbar">
+            <h1>Projects</h1>
+            <a href="/admin/projects/new" class="btn">+ New Project</a>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Name</th><th>Slug</th><th>Category</th><th>Views</th><th>Status</th><th>Order</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for p in projects %}
+                <tr>
+                    <td>{{ p.name }}</td>
+                    <td><code>{{ p.slug }}</code></td>
+                    <td>{{ p.category or "—" }}</td>
+                    <td>{{ p.view_count }}</td>
+                    <td><span class="badge {{ 'badge-visible' if p.is_visible else 'badge-hidden' }}">{{ 'Visible' if p.is_visible else 'Hidden' }}</span></td>
+                    <td>{{ p.sort_order }}</td>
+                    <td class="actions">
+                        <a href="/admin/projects/{{ p.id }}/edit" class="btn btn-sm">Edit</a>
+                        <form class="inline-form" method="post" action="/admin/projects/{{ p.id }}/delete" onsubmit="return confirm('Delete this project?')">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

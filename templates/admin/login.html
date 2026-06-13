@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-box { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 40px; width: 100%; max-width: 380px; }
+        h1 { font-size: 24px; font-weight: 600; margin-bottom: 24px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; }
+        input { width: 100%; padding: 10px 14px; background: #0a0a0f; border: 1px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 14px; outline: none; }
+        input:focus { border-color: #4f8eff; }
+        button { width: 100%; padding: 10px; background: #4f8eff; border: none; border-radius: 8px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+        button:hover { background: #3b7aed; }
+        .error { background: #2d1215; border: 1px solid #5c1a1a; color: #f87171; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>Admin Login</h1>
+        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+        <form method="post" action="/admin/login">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+    </div>
+</body>
+</html>

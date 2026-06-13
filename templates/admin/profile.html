@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        .admin-nav { background: #12121a; border-bottom: 1px solid #27272a; padding: 0 24px; display: flex; align-items: center; height: 56px; }
+        .admin-nav a { color: #a1a1aa; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
+        .admin-nav a:hover, .admin-nav a.active { color: #e4e4e7; border-bottom-color: #4f8eff; }
+        .admin-nav .spacer { flex: 1; }
+        .admin-nav .brand { color: #4f8eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+        .content { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; font-weight: 500; }
+        input, textarea { width: 100%; padding: 10px 14px; background: #12121a; border: 1px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 14px; font-family: inherit; outline: none; }
+        input:focus, textarea:focus { border-color: #4f8eff; }
+        textarea { min-height: 100px; resize: vertical; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .btn { padding: 10px 24px; background: #4f8eff; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn:hover { background: #3b7aed; }
+    </style>
+</head>
+<body>
+    <nav class="admin-nav">
+        <span class="brand">Admin</span>
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/projects">Projects</a>
+        <a href="/admin/profile" class="active">Profile</a>
+        <a href="/admin/themes">Themes</a>
+        <a href="/admin/analytics">Analytics</a>
+        <span class="spacer"></span>
+        <a href="/" target="_blank">View Site</a>
+        <a href="/admin/logout">Logout</a>
+    </nav>
+    <div class="content">
+        <h1>Edit Profile</h1>
+        <form method="post" action="/admin/profile/save">
+            <div class="row">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" value="{{ profile.get('name', '') }}">
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" value="{{ profile.get('title', '') }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Bio</label>
+                <textarea name="bio">{{ profile.get('bio', '') }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Avatar URL</label>
+                <input type="text" name="avatar_url" value="{{ profile.get('avatar_url', '') }}">
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="text" name="github_url" value="{{ profile.get('github_url', '') }}">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="text" name="email" value="{{ profile.get('email', '') }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" name="location" value="{{ profile.get('location', '') }}">
+            </div>
+            <button type="submit" class="btn">Save Profile</button>
+        </form>
+    </div>
+</body>
+</html>
