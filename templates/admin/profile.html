@@ -1,79 +1,78 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en">
-     3|<head>
-     4|    <meta charset="UTF-8">
-     5|    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|    <title>个人资料 - 管理后台</title>
-     7|    <style>
-     8|        * { margin: 0; padding: 0; box-sizing: border-box; }
-     9|        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    10|        .admin-nav { background: #12121a; border-bottom: 1px solid #27272a; padding: 0 24px; display: flex; align-items: center; height: 56px; }
-    11|        .admin-nav a { color: #a1a1aa; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
-    12|        .admin-nav a:hover, .admin-nav a.active { color: #e4e4e7; border-bottom-color: #4f8eff; }
-    13|        .admin-nav .spacer { flex: 1; }
-    14|        .admin-nav .brand { color: #4f8eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
-    15|        .content { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
-    16|        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
-    17|        .form-group { margin-bottom: 20px; }
-    18|        label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; font-weight: 500; }
-    19|        input, textarea { width: 100%; padding: 10px 14px; background: #12121a; border: 1px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 14px; font-family: inherit; outline: none; }
-    20|        input:focus, textarea:focus { border-color: #4f8eff; }
-    21|        textarea { min-height: 100px; resize: vertical; }
-    22|        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    23|        .btn { padding: 10px 24px; background: #4f8eff; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    24|        .btn:hover { background: #3b7aed; }
-    25|    </style>
-    26|</head>
-    27|<body>
-    28|    <nav class="admin-nav">
-    29|        <span class="brand">管理后台</span>
-    30|        <a href="/admin">仪表盘</a>
-    31|        <a href="/admin/projects">项目管理</a>
-    32|        <a href="/admin/profile" class="active">个人资料</a>
-    33|        <a href="/admin/themes">主题设置</a>
-    34|        <a href="/admin/analytics">数据统计</a>
-    35|        <span class="spacer"></span>
-    36|        <a href="/" target="_blank">查看前台</a>
-    37|        <a href="/admin/logout">退出登录</a>
-    38|    </nav>
-    39|    <div class="content">
-    40|        <h1>编辑个人资料</h1>
-    41|        <form method="post" action="/admin/profile/save">
-    42|            <div class="row">
-    43|                <div class="form-group">
-    44|                    <label>姓名</label>
-    45|                    <input type="text" name="name" value="{{ profile.get('name', '') }}">
-    46|                </div>
-    47|                <div class="form-group">
-    48|                    <label>职位</label>
-    49|                    <input type="text" name="title" value="{{ profile.get('title', '') }}">
-    50|                </div>
-    51|            </div>
-    52|            <div class="form-group">
-    53|                <label>简介</label>
-    54|                <textarea name="bio">{{ profile.get('bio', '') }}</textarea>
-    55|            </div>
-    56|            <div class="form-group">
-    57|                <label>头像地址</label>
-    58|                <input type="text" name="avatar_url" value="{{ profile.get('avatar_url', '') }}">
-    59|            </div>
-    60|            <div class="row">
-    61|                <div class="form-group">
-    62|                    <label>GitHub 地址</label>
-    63|                    <input type="text" name="github_url" value="{{ profile.get('github_url', '') }}">
-    64|                </div>
-    65|                <div class="form-group">
-    66|                    <label>邮箱</label>
-    67|                    <input type="text" name="email" value="{{ profile.get('email', '') }}">
-    68|                </div>
-    69|            </div>
-    70|            <div class="form-group">
-    71|                <label>所在地</label>
-    72|                <input type="text" name="location" value="{{ profile.get('location', '') }}">
-    73|            </div>
-    74|            <button type="submit" class="btn">保存</button>
-    75|        </form>
-    76|    </div>
-    77|</body>
-    78|</html>
-    79|
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人资料 - 管理后台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        .admin-nav { background: #12121a; border-bottom: 1px solid #27272a; padding: 0 24px; display: flex; align-items: center; height: 56px; }
+        .admin-nav a { color: #a1a1aa; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
+        .admin-nav a:hover, .admin-nav a.active { color: #e4e4e7; border-bottom-color: #4f8eff; }
+        .admin-nav .spacer { flex: 1; }
+        .admin-nav .brand { color: #4f8eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+        .content { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; font-weight: 500; }
+        input, textarea { width: 100%; padding: 10px 14px; background: #12121a; border: 1px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 14px; font-family: inherit; outline: none; }
+        input:focus, textarea:focus { border-color: #4f8eff; }
+        textarea { min-height: 100px; resize: vertical; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .btn { padding: 10px 24px; background: #4f8eff; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn:hover { background: #3b7aed; }
+    </style>
+</head>
+<body>
+    <nav class="admin-nav">
+        <span class="brand">管理后台</span>
+        <a href="/admin">仪表盘</a>
+        <a href="/admin/projects">项目管理</a>
+        <a href="/admin/profile" class="active">个人资料</a>
+        <a href="/admin/themes">主题设置</a>
+        <a href="/admin/analytics">数据统计</a>
+        <span class="spacer"></span>
+        <a href="/" target="_blank">查看前台</a>
+        <a href="/admin/logout">退出登录</a>
+    </nav>
+    <div class="content">
+        <h1>编辑个人资料</h1>
+        <form method="post" action="/admin/profile/save">
+            <div class="row">
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" name="name" value="{{ profile.get('name', '') }}">
+                </div>
+                <div class="form-group">
+                    <label>职位</label>
+                    <input type="text" name="title" value="{{ profile.get('title', '') }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>简介</label>
+                <textarea name="bio">{{ profile.get('bio', '') }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>头像地址</label>
+                <input type="text" name="avatar_url" value="{{ profile.get('avatar_url', '') }}">
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>GitHub 地址</label>
+                    <input type="text" name="github_url" value="{{ profile.get('github_url', '') }}">
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="text" name="email" value="{{ profile.get('email', '') }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>所在地</label>
+                <input type="text" name="location" value="{{ profile.get('location', '') }}">
+            </div>
+            <button type="submit" class="btn">保存</button>
+        </form>
+    </div>
+</body>
+</html>

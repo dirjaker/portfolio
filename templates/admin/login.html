@@ -1,39 +1,38 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en">
-     3|<head>
-     4|    <meta charset="UTF-8">
-     5|    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|    <title>管理后台登录</title>
-     7|    <style>
-     8|        * { margin: 0; padding: 0; box-sizing: border-box; }
-     9|        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    10|        .login-box { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 40px; width: 100%; max-width: 380px; }
-    11|        h1 { font-size: 24px; font-weight: 600; margin-bottom: 24px; }
-    12|        .form-group { margin-bottom: 16px; }
-    13|        label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; }
-    14|        input { width: 100%; padding: 10px 14px; background: #0a0a0f; border: 1px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 14px; outline: none; }
-    15|        input:focus { border-color: #4f8eff; }
-    16|        button { width: 100%; padding: 10px; background: #4f8eff; border: none; border-radius: 8px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
-    17|        button:hover { background: #3b7aed; }
-    18|        .error { background: #2d1215; border: 1px solid #5c1a1a; color: #f87171; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
-    19|    </style>
-    20|</head>
-    21|<body>
-    22|    <div class="login-box">
-    23|        <h1>管理后台登录</h1>
-    24|        {% if error %}<div class="error">{{ error }}</div>{% endif %}
-    25|        <form method="post" action="/admin/login">
-    26|            <div class="form-group">
-    27|                <label>用户名</label>
-    28|                <input type="text" name="username" required autofocus>
-    29|            </div>
-    30|            <div class="form-group">
-    31|                <label>密码</label>
-    32|                <input type="password" name="password" required>
-    33|            </div>
-    34|            <button type="submit">登录</button>
-    35|        </form>
-    36|    </div>
-    37|</body>
-    38|</html>
-    39|
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台登录</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-box { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 40px; width: 100%; max-width: 380px; }
+        h1 { font-size: 24px; font-weight: 600; margin-bottom: 24px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; }
+        input { width: 100%; padding: 10px 14px; background: #0a0a0f; border: 1px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 14px; outline: none; }
+        input:focus { border-color: #4f8eff; }
+        button { width: 100%; padding: 10px; background: #4f8eff; border: none; border-radius: 8px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+        button:hover { background: #3b7aed; }
+        .error { background: #2d1215; border: 1px solid #5c1a1a; color: #f87171; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>管理后台登录</h1>
+        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+        <form method="post" action="/admin/login">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" name="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit">登录</button>
+        </form>
+    </div>
+</body>
+</html>

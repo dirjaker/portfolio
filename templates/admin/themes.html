@@ -1,113 +1,112 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en">
-     3|<head>
-     4|    <meta charset="UTF-8">
-     5|    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|    <title>主题设置 - 管理后台</title>
-     7|    <style>
-     8|        * { margin: 0; padding: 0; box-sizing: border-box; }
-     9|        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    10|        .admin-nav { background: #12121a; border-bottom: 1px solid #27272a; padding: 0 24px; display: flex; align-items: center; height: 56px; }
-    11|        .admin-nav a { color: #a1a1aa; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
-    12|        .admin-nav a:hover, .admin-nav a.active { color: #e4e4e7; border-bottom-color: #4f8eff; }
-    13|        .admin-nav .spacer { flex: 1; }
-    14|        .admin-nav .brand { color: #4f8eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
-    15|        .content { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
-    16|        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
-    17|        .theme-card { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
-    18|        .theme-card.active { border-color: #4f8eff; }
-    19|        .theme-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    20|        .theme-name { font-size: 18px; font-weight: 600; }
-    21|        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #0d3320; color: #4ade80; }
-    22|        .form-group { margin-bottom: 16px; }
-    23|        label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; font-weight: 500; }
-    24|        input, textarea { width: 100%; padding: 10px 14px; background: #0a0a0f; border: 1px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 14px; font-family: monospace; outline: none; }
-    25|        input:focus, textarea:focus { border-color: #4f8eff; }
-    26|        textarea { min-height: 160px; resize: vertical; }
-    27|        .btn { display: inline-block; padding: 8px 16px; background: #4f8eff; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
-    28|        .btn:hover { background: #3b7aed; }
-    29|        .btn-danger { background: #ef4444; }
-    30|        .btn-danger:hover { background: #dc2626; }
-    31|        .btn-sm { padding: 4px 10px; font-size: 12px; }
-    32|        .actions { display: flex; gap: 8px; }
-    33|        .inline-form { display: inline; }
-    34|        .new-theme { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 24px; margin-top: 32px; }
-    35|        .new-theme h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
-    36|        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-    37|    </style>
-    38|</head>
-    39|<body>
-    40|    <nav class="admin-nav">
-    41|        <span class="brand">管理后台</span>
-    42|        <a href="/admin">仪表盘</a>
-    43|        <a href="/admin/projects">项目管理</a>
-    44|        <a href="/admin/profile">个人资料</a>
-    45|        <a href="/admin/themes" class="active">主题设置</a>
-    46|        <a href="/admin/analytics">数据统计</a>
-    47|        <span class="spacer"></span>
-    48|        <a href="/" target="_blank">查看前台</a>
-    49|        <a href="/admin/logout">退出登录</a>
-    50|    </nav>
-    51|    <div class="content">
-    52|        <h1>主题设置</h1>
-    53|        {% for t in themes %}
-    54|        <div class="theme-card {{ 'active' if t.is_active }}">
-    55|            <div class="theme-header">
-    56|                <div>
-    57|                    <span class="theme-name">{{ t.name }}</span>
-    58|                    {% if t.is_active %}<span class="badge">当前</span>{% endif %}
-    59|                </div>
-    60|                <div class="actions">
-    61|                    <form class="inline-form" method="post" action="/admin/themes/{{ t.id }}/delete" onsubmit="return confirm('删除 this theme?')">
-    62|                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
-    63|                    </form>
-    64|                </div>
-    65|            </div>
-    66|            <form method="post" action="/admin/themes/save">
-    67|                <input type="hidden" name="tid" value="{{ t.id }}">
-    68|                <div class="form-group">
-    69|                    <label>名称</label>
-    70|                    <input type="text" name="name" value="{{ t.name }}">
-    71|                </div>
-    72|                <div class="form-group">
-    73|                    <label>CSS 变量 (JSON)</label>
-    74|                    <textarea name="css_vars">{{ t.css_vars }}</textarea>
-    75|                </div>
-    76|                <label><input type="checkbox" name="is_active" value="1" {{ 'checked' if t.is_active else '' }}> 设为当前主题</label>
-    77|                <br><br>
-    78|                <button type="submit" class="btn btn-sm">更新主题</button>
-    79|            </form>
-    80|        </div>
-    81|        {% endfor %}
-    82|
-    83|        <div class="new-theme">
-    84|            <h2>新建主题</h2>
-    85|            <form method="post" action="/admin/themes/save">
-    86|                <input type="hidden" name="tid" value="0">
-    87|                <div class="form-group">
-    88|                    <label>名称</label>
-    89|                    <input type="text" name="name" value="" required>
-    90|                </div>
-    91|                <div class="form-group">
-    92|                    <label>CSS 变量 (JSON)</label>
-    93|                    <textarea name="css_vars">{
-    94|    "--bg-primary": "#0a0a0f",
-    95|    "--bg-secondary": "#12121a",
-    96|    "--bg-card": "#16161f",
-    97|    "--text-primary": "#e4e4e7",
-    98|    "--text-secondary": "#a1a1aa",
-    99|    "--accent": "#4f8eff",
-   100|    "--accent-hover": "#3b7aed",
-   101|    "--border": "#27272a",
-   102|    "--shadow": "0 4px 24px rgba(0,0,0,0.4)"
-   103|}</textarea>
-   104|                </div>
-   105|                <label><input type="checkbox" name="is_active" value="1"> 设为当前主题</label>
-   106|                <br><br>
-   107|                <button type="submit" class="btn">创建主题</button>
-   108|            </form>
-   109|        </div>
-   110|    </div>
-   111|</body>
-   112|</html>
-   113|
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主题设置 - 管理后台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        .admin-nav { background: #12121a; border-bottom: 1px solid #27272a; padding: 0 24px; display: flex; align-items: center; height: 56px; }
+        .admin-nav a { color: #a1a1aa; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
+        .admin-nav a:hover, .admin-nav a.active { color: #e4e4e7; border-bottom-color: #4f8eff; }
+        .admin-nav .spacer { flex: 1; }
+        .admin-nav .brand { color: #4f8eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+        .content { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
+        .theme-card { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .theme-card.active { border-color: #4f8eff; }
+        .theme-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .theme-name { font-size: 18px; font-weight: 600; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #0d3320; color: #4ade80; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; font-weight: 500; }
+        input, textarea { width: 100%; padding: 10px 14px; background: #0a0a0f; border: 1px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 14px; font-family: monospace; outline: none; }
+        input:focus, textarea:focus { border-color: #4f8eff; }
+        textarea { min-height: 160px; resize: vertical; }
+        .btn { display: inline-block; padding: 8px 16px; background: #4f8eff; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn:hover { background: #3b7aed; }
+        .btn-danger { background: #ef4444; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        .actions { display: flex; gap: 8px; }
+        .inline-form { display: inline; }
+        .new-theme { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 24px; margin-top: 32px; }
+        .new-theme h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    </style>
+</head>
+<body>
+    <nav class="admin-nav">
+        <span class="brand">管理后台</span>
+        <a href="/admin">仪表盘</a>
+        <a href="/admin/projects">项目管理</a>
+        <a href="/admin/profile">个人资料</a>
+        <a href="/admin/themes" class="active">主题设置</a>
+        <a href="/admin/analytics">数据统计</a>
+        <span class="spacer"></span>
+        <a href="/" target="_blank">查看前台</a>
+        <a href="/admin/logout">退出登录</a>
+    </nav>
+    <div class="content">
+        <h1>主题设置</h1>
+        {% for t in themes %}
+        <div class="theme-card {{ 'active' if t.is_active }}">
+            <div class="theme-header">
+                <div>
+                    <span class="theme-name">{{ t.name }}</span>
+                    {% if t.is_active %}<span class="badge">当前</span>{% endif %}
+                </div>
+                <div class="actions">
+                    <form class="inline-form" method="post" action="/admin/themes/{{ t.id }}/delete" onsubmit="return confirm('删除 this theme?')">
+                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                    </form>
+                </div>
+            </div>
+            <form method="post" action="/admin/themes/save">
+                <input type="hidden" name="tid" value="{{ t.id }}">
+                <div class="form-group">
+                    <label>名称</label>
+                    <input type="text" name="name" value="{{ t.name }}">
+                </div>
+                <div class="form-group">
+                    <label>CSS 变量 (JSON)</label>
+                    <textarea name="css_vars">{{ t.css_vars }}</textarea>
+                </div>
+                <label><input type="checkbox" name="is_active" value="1" {{ 'checked' if t.is_active else '' }}> 设为当前主题</label>
+                <br><br>
+                <button type="submit" class="btn btn-sm">更新主题</button>
+            </form>
+        </div>
+        {% endfor %}
+
+        <div class="new-theme">
+            <h2>新建主题</h2>
+            <form method="post" action="/admin/themes/save">
+                <input type="hidden" name="tid" value="0">
+                <div class="form-group">
+                    <label>名称</label>
+                    <input type="text" name="name" value="" required>
+                </div>
+                <div class="form-group">
+                    <label>CSS 变量 (JSON)</label>
+                    <textarea name="css_vars">{
+    "--bg-primary": "#0a0a0f",
+    "--bg-secondary": "#12121a",
+    "--bg-card": "#16161f",
+    "--text-primary": "#e4e4e7",
+    "--text-secondary": "#a1a1aa",
+    "--accent": "#4f8eff",
+    "--accent-hover": "#3b7aed",
+    "--border": "#27272a",
+    "--shadow": "0 4px 24px rgba(0,0,0,0.4)"
+}</textarea>
+                </div>
+                <label><input type="checkbox" name="is_active" value="1"> 设为当前主题</label>
+                <br><br>
+                <button type="submit" class="btn">创建主题</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
