@@ -73,7 +73,7 @@ async function loadProjects() {
         card.style.animationDelay = `${i * 0.08}s`;
         card.onclick = () => {
             fetch(`/api/view/${p.slug}`, { method: 'POST' });
-            window.open(url, '_blank');
+            window.open(`/project/${p.slug}`, '_blank');
         };
         let techHtml = '';
         if (p.show_tech && techs.length) {

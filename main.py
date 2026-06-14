@@ -88,10 +88,12 @@ def index(request: Request):
 def project_detail(request: Request, slug: str):
     db = get_db()
     p = db.execute("SELECT * FROM project WHERE slug = ?", (slug,)).fetchone()
+    theme = db.execute("SELECT css_vars FROM theme WHERE is_active = 1").fetchone()
     db.close()
     if not p:
         raise HTTPException(404)
-    return templates.TemplateResponse(request, "project_detail.html", {"project": dict(p)})
+    theme_vars = json.loads(theme["css_vars"]) if theme else {}
+    return templates.TemplateResponse(request, "project_detail.html", {"project": dict(p), "theme_vars": theme_vars})
 
 # --- Auth ---
 @app.get("/admin/login", response_class=HTMLResponse)
