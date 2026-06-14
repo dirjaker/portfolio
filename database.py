@@ -86,7 +86,7 @@ def init_db():
             VALUES (?, ?, ?, ?, ?, ?, ?)""",
             ("Your Name", "Software Engineer",
              "Building things for the web. Focused on clean code, thoughtful design, and shipping products that matter.",
-             "", "https://github.com/dirjaker", "hello@example.com", "San Francisco, CA"))
+             "", "https://github.com/yourusername", "hello@example.com", "San Francisco, CA"))
 
     # Seed default theme
     existing = cursor.execute("SELECT id FROM theme WHERE is_active = 1").fetchone()
