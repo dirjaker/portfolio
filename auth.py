@@ -1,4 +1,5 @@
 from fastapi import Request, HTTPException
+from fastapi.responses import RedirectResponse
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from config import SECRET_KEY
 
@@ -22,5 +23,5 @@ def get_current_user(request: Request) -> str | None:
 def require_admin(request: Request) -> str:
     user = get_current_user(request)
     if not user:
-        raise HTTPException(status_code=403, detail="Not authenticated")
+        raise HTTPException(status_code=303, headers={"Location": "/admin/login"})
     return user
