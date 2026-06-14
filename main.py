@@ -80,8 +80,8 @@ def index(request: Request):
     db.commit()
     db.close()
     theme_vars = json.loads(theme["css_vars"]) if theme else {}
-    return templates.TemplateResponse("index.html", {
-        "request": request, "profile": dict(profile) if profile else {}, "theme_vars": theme_vars
+    return templates.TemplateResponse(request, "index.html", {
+        "profile": dict(profile) if profile else {}, "theme_vars": theme_vars
     })
 
 @app.get("/project/{slug}", response_class=HTMLResponse)
@@ -91,12 +91,12 @@ def project_detail(request: Request, slug: str):
     db.close()
     if not p:
         raise HTTPException(404)
-    return templates.TemplateResponse("project_detail.html", {"request": request, "project": dict(p)})
+    return templates.TemplateResponse(request, "project_detail.html", {"project": dict(p)})
 
 # --- Auth ---
 @app.get("/admin/login", response_class=HTMLResponse)
 def admin_login_page(request: Request):
-    return templates.TemplateResponse("admin/login.html", {"request": request, "error": None})
+    return templates.TemplateResponse(request, "admin/login.html", {"error": None})
 
 @app.post("/admin/login")
 def admin_login(request: Request, username: str = Form(...), password: str = Form(...)):
@@ -104,7 +104,7 @@ def admin_login(request: Request, username: str = Form(...), password: str = For
     user = db.execute("SELECT * FROM admin_user WHERE username = ?", (username,)).fetchone()
     db.close()
     if not user or not pbkdf2_sha256.verify(password, user["password_hash"]):
-        return templates.TemplateResponse("admin/login.html", {"request": request, "error": "Invalid credentials"})
+        return templates.TemplateResponse(request, "admin/login.html", {"error": "Invalid credentials"})
     token = create_session_token(username)
     response = RedirectResponse("/admin", status_code=303)
     response.set_cookie("session", token, httponly=True, max_age=86400)
@@ -129,8 +129,8 @@ def admin_dashboard(request: Request):
         "ORDER BY sv.viewed_at DESC LIMIT 20"
     ).fetchall()
     db.close()
-    return templates.TemplateResponse("admin/dashboard.html", {
-        "request": request, "total_projects": total_projects,
+    return templates.TemplateResponse(request, "admin/dashboard.html", {
+        "total_projects": total_projects,
         "total_views": total_views, "recent_views": [dict(v) for v in recent_views]
     })
 
@@ -140,14 +140,14 @@ def admin_projects(request: Request):
     db = get_db()
     projects = db.execute("SELECT * FROM project ORDER BY sort_order ASC, created_at DESC").fetchall()
     db.close()
-    return templates.TemplateResponse("admin/projects.html", {
-        "request": request, "projects": [dict(p) for p in projects]
+    return templates.TemplateResponse(request, "admin/projects.html", {
+        "projects": [dict(p) for p in projects]
     })
 
 @app.get("/admin/projects/new", response_class=HTMLResponse)
 def admin_project_new(request: Request):
     require_admin(request)
-    return templates.TemplateResponse("admin/project_edit.html", {"request": request, "project": None, "error": None})
+    return templates.TemplateResponse(request, "admin/project_edit.html", {"project": None, "error": None})
 
 @app.get("/admin/projects/{pid}/edit", response_class=HTMLResponse)
 def admin_project_edit(request: Request, pid: int):
@@ -157,7 +157,7 @@ def admin_project_edit(request: Request, pid: int):
     db.close()
     if not p:
         raise HTTPException(404)
-    return templates.TemplateResponse("admin/project_edit.html", {"request": request, "project": dict(p), "error": None})
+    return templates.TemplateResponse(request, "admin/project_edit.html", {"project": dict(p), "error": None})
 
 @app.post("/admin/projects/save")
 def admin_project_save(request: Request, pid: int = Form(0), name: str = Form(...), slug: str = Form(...),
@@ -199,7 +199,7 @@ def admin_profile(request: Request):
     db = get_db()
     profile = db.execute("SELECT * FROM profile LIMIT 1").fetchone()
     db.close()
-    return templates.TemplateResponse("admin/profile.html", {"request": request, "profile": dict(profile) if profile else {}})
+    return templates.TemplateResponse(request, "admin/profile.html", {"profile": dict(profile) if profile else {}})
 
 @app.post("/admin/profile/save")
 def admin_profile_save(request: Request, name: str = Form(""), title: str = Form(""), bio: str = Form(""),
@@ -224,7 +224,7 @@ def admin_themes(request: Request):
     db = get_db()
     themes = db.execute("SELECT * FROM theme ORDER BY id").fetchall()
     db.close()
-    return templates.TemplateResponse("admin/themes.html", {"request": request, "themes": [dict(t) for t in themes]})
+    return templates.TemplateResponse(request, "admin/themes.html", {"themes": [dict(t) for t in themes]})
 
 @app.post("/admin/themes/save")
 def admin_theme_save(request: Request, tid: int = Form(0), name: str = Form(...), css_vars: str = Form(...),
@@ -260,8 +260,8 @@ def admin_analytics(request: Request):
         "GROUP BY DATE(viewed_at) ORDER BY day DESC LIMIT 30"
     ).fetchall()
     db.close()
-    return templates.TemplateResponse("admin/analytics.html", {
-        "request": request, "projects": [dict(p) for p in projects],
+    return templates.TemplateResponse(request, "admin/analytics.html", {
+        "projects": [dict(p) for p in projects],
         "daily_views": [dict(d) for d in daily_views]
     })
 
