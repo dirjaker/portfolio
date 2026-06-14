@@ -8,7 +8,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 
-        /* Navigation */
         .admin-nav { background: #fff; border-bottom: 1px solid #e0ddd5; padding: 0 24px; display: flex; align-items: center; height: 56px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
         .admin-nav a { color: #666; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.2s; }
         .admin-nav a:hover { color: #1a1a1a; }
@@ -16,39 +15,40 @@
         .admin-nav .spacer { flex: 1; }
         .admin-nav .brand { color: #4f6eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
 
-        /* Layout */
         .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
         .page-header { margin-bottom: 32px; }
-        .page-title { font-size: 24px; font-weight: 700; color: #1a1a1a; }
+        .page-title { font-size: 24px; font-weight: 700; }
 
-        /* Stat Cards */
+        /* 统计卡片 */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-        .stat-card { background: #fff; border: 1px solid #e0ddd5; border-radius: 12px; padding: 20px 24px; }
+        .stat-card { background: #fff; border: 1px solid #e0ddd5; border-radius: 12px; padding: 20px 24px; position: relative; }
         .stat-label { font-size: 13px; color: #888; margin-bottom: 4px; }
         .stat-value { font-size: 28px; font-weight: 700; color: #1a1a1a; }
-        .stat-icon { float: right; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .stat-icon { position: absolute; top: 20px; right: 24px; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; }
         .stat-icon.blue { background: #eef2ff; color: #4f6eff; }
         .stat-icon.green { background: #ecfdf5; color: #10b981; }
         .stat-icon.orange { background: #fff7ed; color: #f59e0b; }
         .stat-icon.purple { background: #f5f3ff; color: #8b5cf6; }
 
-        /* Two Column Layout */
+        /* 两列布局 */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
         @media (max-width: 900px) { .grid-2, .stats-grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 600px) { .grid-2, .stats-grid { grid-template-columns: 1fr; } }
 
-        /* Cards */
         .card { background: #fff; border: 1px solid #e0ddd5; border-radius: 12px; padding: 24px; }
         .card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 20px; }
 
-        /* Bar Chart */
-        .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 160px; padding-top: 8px; }
-        .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .bar { width: 100%; border-radius: 6px 6px 0 0; background: #4f6eff; min-height: 4px; transition: height 0.4s ease; }
-        .bar-label { font-size: 11px; color: #999; }
-        .bar-value { font-size: 11px; color: #666; font-weight: 600; }
+        /* 折线图 */
+        .chart-wrap { position: relative; }
+        .chart-svg { width: 100%; height: 180px; }
+        .chart-grid-line { stroke: #e8e5dd; stroke-width: 1; }
+        .chart-line { fill: none; stroke: #4f6eff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .chart-area { fill: url(#lineGrad); }
+        .chart-dot { fill: #4f6eff; stroke: #fff; stroke-width: 2; }
+        .chart-label { font-size: 11px; fill: #999; text-anchor: middle; }
+        .chart-value-label { font-size: 11px; fill: #4f6eff; text-anchor: middle; font-weight: 600; }
 
-        /* Top Projects */
+        /* TOP5 */
         .top-list { list-style: none; }
         .top-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0ede5; }
         .top-item:last-child { border-bottom: none; }
@@ -60,15 +60,14 @@
         .top-name { flex: 1; font-size: 14px; font-weight: 500; color: #1a1a1a; }
         .top-count { font-size: 14px; font-weight: 600; color: #4f6eff; }
         .top-bar-bg { flex: 1; height: 6px; background: #f0ede5; border-radius: 3px; margin: 0 12px; overflow: hidden; }
-        .top-bar-fill { height: 100%; background: #4f6eff; border-radius: 3px; transition: width 0.4s ease; }
-        .empty-hint { color: #999; font-size: 14px; text-align: center; padding: 40px 0; }
+        .top-bar-fill { height: 100%; background: #4f6eff; border-radius: 3px; }
 
-        /* Recent Table */
+        /* 最近访问 */
         .recent-table { width: 100%; border-collapse: collapse; }
         .recent-table th { text-align: left; padding: 8px 0; font-size: 12px; color: #999; font-weight: 500; border-bottom: 1px solid #e0ddd5; }
         .recent-table td { padding: 10px 0; font-size: 13px; color: #444; border-bottom: 1px solid #f5f3ee; }
-        .recent-table td:first-child { color: #1a1a1a; font-weight: 500; }
-        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; background: #f0ede5; color: #666; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #f0ede5; color: #555; }
+        .empty-hint { color: #999; font-size: 14px; text-align: center; padding: 40px 0; }
     </style>
 </head>
 <body>
@@ -97,8 +96,8 @@
             </div>
             <div class="stat-card">
                 <div class="stat-icon green">V</div>
-                <div class="stat-label">总访问量</div>
-                <div class="stat-value">{{ total_views }}</div>
+                <div class="stat-label">展示项目数</div>
+                <div class="stat-value">{{ visible_projects }}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon orange">T</div>
@@ -106,27 +105,70 @@
                 <div class="stat-value">{{ today_views }}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon purple">U</div>
-                <div class="stat-label">独立访客</div>
-                <div class="stat-value">{{ unique_visitors }}</div>
+                <div class="stat-icon purple">A</div>
+                <div class="stat-label">访问总量</div>
+                <div class="stat-value">{{ total_views }}</div>
             </div>
         </div>
 
         <!-- 趋势 + 热门项目 -->
         <div class="grid-2">
-            <!-- 近7天访问趋势 -->
+            <!-- 近7天折线图 -->
             <div class="card">
                 <div class="card-title">近 7 天访问趋势</div>
                 {% if daily_7 %}
                 {% set max_count = daily_7 | map(attribute='count') | max %}
-                <div class="bar-chart">
-                    {% for d in daily_7 %}
-                    <div class="bar-col">
-                        <div class="bar-value">{{ d.count }}</div>
-                        <div class="bar" style="height: {{ (d.count / max_count * 130) | int if max_count > 0 else 4 }}px;"></div>
-                        <div class="bar-label">{{ d.day[5:] }}</div>
-                    </div>
-                    {% endfor %}
+                {% set points = [] %}
+                {% set labels = [] %}
+                {% set values = [] %}
+                {% for d in daily_7 %}
+                    {% set x = (loop.index0 * 100 / (daily_7|length - 1)) if daily_7|length > 1 else 50 %}
+                    {% set y = 150 - (d.count / max_count * 130) if max_count > 0 else 150 %}
+                    {% if points.append(x ~ ',' ~ y) %}{% endif %}
+                    {% if labels.append(d.day[5:]) %}{% endif %}
+                    {% if values.append(d.count) %}{% endif %}
+                {% endfor %}
+                <div class="chart-wrap">
+                    <svg class="chart-svg" viewBox="0 0 600 200" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#4f6eff" stop-opacity="0.15"/>
+                                <stop offset="100%" stop-color="#4f6eff" stop-opacity="0.01"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- 网格线 -->
+                        <line x1="40" y1="20" x2="580" y2="20" class="chart-grid-line" stroke-dasharray="4"/>
+                        <line x1="40" y1="65" x2="580" y2="65" class="chart-grid-line" stroke-dasharray="4"/>
+                        <line x1="40" y1="110" x2="580" y2="110" class="chart-grid-line" stroke-dasharray="4"/>
+                        <line x1="40" y1="150" x2="580" y2="150" class="chart-grid-line"/>
+                        <!-- Y轴标签 -->
+                        <text x="35" y="24" text-anchor="end" class="chart-label">{{ max_count }}</text>
+                        <text x="35" y="69" text-anchor="end" class="chart-label">{{ (max_count * 0.66)|int }}</text>
+                        <text x="35" y="114" text-anchor="end" class="chart-label">{{ (max_count * 0.33)|int }}</text>
+                        <text x="35" y="154" text-anchor="end" class="chart-label">0</text>
+                        <!-- 面积 -->
+                        {% set ns = namespace(pts=[]) %}
+                        {% for p in points %}
+                            {% set parts = p.split(',') %}
+                            {% if ns.pts.append(parts[0] ~ ',' ~ parts[1]) %}{% endif %}
+                        {% endfor %}
+                        <polygon class="chart-area" points="40,150 {% for p in points %}{% set parts = p.split(',') %}{{ 40 + parts[0]|float * 5.4 }},{{ parts[1] }} {% endfor %}{{ 40 + (points|length - 1) * 540 / ((points|length - 1) if points|length > 1 else 1) }},150"/>
+                        <!-- 折线 -->
+                        <polyline class="chart-line" points="{% for p in points %}{% set parts = p.split(',') %}{{ 40 + parts[0]|float * 5.4 }},{{ parts[1] }} {% endfor %}"/>
+                        <!-- 圆点 + 数值 -->
+                        {% for p in points %}
+                            {% set parts = p.split(',') %}
+                            {% set cx = 40 + parts[0]|float * 5.4 %}
+                            {% set cy = parts[1]|float %}
+                            <circle class="chart-dot" cx="{{ cx }}" cy="{{ cy }}" r="4"/>
+                            <text class="chart-value-label" x="{{ cx }}" y="{{ cy - 10 }}">{{ values[loop.index0] }}</text>
+                        {% endfor %}
+                        <!-- X轴标签 -->
+                        {% for lbl in labels %}
+                            {% set lx = 40 + loop.index0 * 540 / ((labels|length - 1) if labels|length > 1 else 1) %}
+                            <text class="chart-label" x="{{ lx }}" y="180">{{ lbl }}</text>
+                        {% endfor %}
+                    </svg>
                 </div>
                 {% else %}
                 <div class="empty-hint">暂无数据</div>
@@ -156,19 +198,17 @@
             </div>
         </div>
 
-        <!-- 最近访问 -->
+        <!-- 最近访问（仅首页） -->
         <div class="card">
             <div class="card-title">最近访问</div>
-            {% if recent_views %}
+            {% if recent_home %}
             <table class="recent-table">
                 <thead>
-                    <tr><th>页面</th><th>项目</th><th>IP 地址</th><th>时间</th></tr>
+                    <tr><th>IP 地址</th><th>时间</th></tr>
                 </thead>
                 <tbody>
-                    {% for v in recent_views %}
+                    {% for v in recent_home %}
                     <tr>
-                        <td>{{ v.page }}</td>
-                        <td>{{ v.project_name or "—" }}</td>
                         <td><span class="tag">{{ v.ip_address }}</span></td>
                         <td>{{ v.viewed_at[:16] }}</td>
                     </tr>

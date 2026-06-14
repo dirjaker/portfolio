@@ -124,20 +124,17 @@ def admin_dashboard(request: Request):
     require_admin(request)
     db = get_db()
     total_projects = db.execute("SELECT COUNT(*) as c FROM project").fetchone()["c"]
-    total_views = db.execute("SELECT COALESCE(SUM(view_count), 0) as c FROM project").fetchone()["c"]
+    visible_projects = db.execute("SELECT COUNT(*) as c FROM project WHERE is_visible = 1").fetchone()["c"]
     today_views = db.execute(
         "SELECT COUNT(*) as c FROM site_view WHERE DATE(viewed_at) = DATE('now')"
     ).fetchone()["c"]
-    unique_visitors = db.execute(
-        "SELECT COUNT(DISTINCT ip_address) as c FROM site_view"
-    ).fetchone()["c"]
+    total_views = db.execute("SELECT COUNT(*) as c FROM site_view").fetchone()["c"]
     top_projects = db.execute(
         "SELECT name, slug, view_count FROM project WHERE view_count > 0 ORDER BY view_count DESC LIMIT 5"
     ).fetchall()
-    recent_views = db.execute(
-        "SELECT sv.*, p.name as project_name FROM site_view sv "
-        "LEFT JOIN project p ON sv.page = p.slug "
-        "ORDER BY sv.viewed_at DESC LIMIT 10"
+    # 最近访问：只看首页
+    recent_home = db.execute(
+        "SELECT ip_address, viewed_at FROM site_view WHERE page = 'home' ORDER BY viewed_at DESC LIMIT 10"
     ).fetchall()
     # 近7天每日访问量
     daily_7 = db.execute(
@@ -147,11 +144,11 @@ def admin_dashboard(request: Request):
     db.close()
     return templates.TemplateResponse(request, "admin/dashboard.html", {
         "total_projects": total_projects,
-        "total_views": total_views,
+        "visible_projects": visible_projects,
         "today_views": today_views,
-        "unique_visitors": unique_visitors,
+        "total_views": total_views,
         "top_projects": [dict(p) for p in top_projects],
-        "recent_views": [dict(v) for v in recent_views],
+        "recent_home": [dict(v) for v in recent_home],
         "daily_7": [dict(d) for d in daily_7],
     })
 
