@@ -1,138 +1,57 @@
-# Portfolio
+# 个人作品集网站
 
-A personal portfolio/showcase website built with FastAPI, SQLite, and Jinja2.
+> 个人作品集/项目展示网站：暗色主题、管理后台、RESTful API、访问统计
 
-## Features
+`Python` `FastAPI` `SQLite` `Jinja2`
 
-- **Public Frontend**: Dark-themed project showcase with smooth animations
-- **Admin Panel**: Full CRUD for projects, profile management, theme customization, analytics
-- **API**: RESTful endpoints for projects, profile, and themes
-- **Themes**: CSS variable-based theming system
-- **Analytics**: Page view tracking per project
-- **Responsive**: Works on desktop and mobile devices
+---
 
-## Quick Start
+## ✨ 功能特性
+
+- 暗色主题
+- 管理后台
+- RESTful API
+- 访问统计
+- 主题定制
+
+## 🚀 快速开始
 
 ```bash
-# Install dependencies
+# 克隆项目
+git clone https://github.com/dirjaker/portfolio.git
+cd portfolio
+
+# 创建虚拟环境
+conda create -n portfolio python=3.12 -y
+conda activate portfolio
+
+# 安装依赖
 pip install -r requirements.txt
 
-# Run the server
+# 运行项目
 python main.py
-
-# Or with uvicorn
-uvicorn main:app --reload
 ```
 
-Visit http://localhost:8000 for the public site.
-Admin panel at http://localhost:8000/admin/login
-
-**Default credentials:** admin / admin123
-
-## Tech Stack
-
-- **Backend**: FastAPI + SQLite + Jinja2
-- **Frontend**: Single-page HTML with CSS custom properties
-- **Auth**: Session-based with password hashing (passlib)
-
-## Configuration
-
-Environment variables (create a `.env` file):
-
-```env
-SECRET_KEY=your-random-secret-key-here
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=your-secure-password
-HOST=0.0.0.0
-PORT=8000
-DATABASE_URL=portfolio.db
-```
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/projects` | List visible projects |
-| GET | `/api/projects/:slug` | Get project detail |
-| POST | `/api/view/:slug` | Record a page view |
-| GET | `/api/profile` | Get profile info |
-| GET | `/api/theme` | Get active theme CSS vars |
-
-## Project Structure
+## 📁 项目结构
 
 ```
 portfolio/
-├── main.py              # FastAPI application
-├── database.py          # Database operations & schema
-├── auth.py              # Authentication logic
-├── config.py            # Configuration (env vars)
-├── requirements.txt     # Python dependencies
-├── templates/           # Jinja2 templates
-│   ├── index.html       # Public homepage
-│   ├── project_detail.html
-│   └── admin/           # Admin panel templates
-├── static/              # Static assets (CSS, JS, images)
-└── packaging/           # Packaging configuration
+├── ...
+└── README.md
 ```
 
-## Deployment
+## 🛠️ 技术栈
 
-### Local Development
+Python, FastAPI, SQLite, Jinja2
 
-```bash
-python main.py
-```
+## 📝 标签
 
-### Production (with uvicorn)
+`portfolio` `showcase` `personal-website` `python` `fastapi`
 
-```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
-
-### Docker (optional)
-
-```dockerfile
-FROM python:3.12-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-## Customization
-
-### Changing Theme
-
-1. Login to admin panel
-2. Go to Themes
-3. Edit CSS variables (colors, shadows, borders)
-
-### Adding Projects
-
-1. Login to admin panel
-2. Go to Projects
-3. Click "Add Project"
-4. Fill in project details
-
-### Updating Profile
-
-1. Login to admin panel
-2. Go to Profile
-3. Update your information
-
-## Security Notes
-
-- Change the default admin password immediately
-- Set a strong `SECRET_KEY` in production
-- Use HTTPS in production
-- Consider adding rate limiting for API endpoints
-
-## License
+## 📄 许可证
 
 MIT License
 
-## Author
+---
 
-Your Name - [GitHub](https://github.com/yourusername)
+🔗 **GitHub**: [dirjaker/portfolio](https://github.com/dirjaker/portfolio)
