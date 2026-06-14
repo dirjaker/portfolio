@@ -1,115 +1,114 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en">
-     3|<head>
-     4|    <meta charset="UTF-8">
-     5|    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|    <title>{{ "Edit" if project else "New" }} Project - 管理后台</title>
-     7|    <style>
-     8|        * { margin: 0; padding: 0; box-sizing: border-box; }
-     9|        body { background: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    10|        .admin-nav { background: #fff; border-bottom: 1px solid #e0ddd5; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 0 24px; display: flex; align-items: center; height: 56px; }
-    11|        .admin-nav a { color: #666; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
-    12|        .admin-nav a:hover, .admin-nav a.active { color: #1a1a1a; border-bottom-color: #4f6eff; }
-    13|        .admin-nav .spacer { flex: 1; }
-    14|        .admin-nav .brand { color: #4f6eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
-    15|        .content { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
-    16|        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
-    17|        .form-group { margin-bottom: 20px; }
-    18|        label { display: block; font-size: 14px; color: #666; margin-bottom: 6px; font-weight: 500; }
-    19|        input, textarea, select { width: 100%; padding: 10px 14px; background: #fafaf8; border: 1px solid #d0cdc5; border-radius: 8px; color: #1a1a1a; font-size: 14px; font-family: inherit; outline: none; }
-    20|        input:focus, textarea:focus { border-color: #4f6eff; }
-    21|        textarea { min-height: 120px; resize: vertical; }
-    22|        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    23|        .checkbox-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 20px; }
-    24|        .checkbox-row label { display: flex; align-items: center; gap: 8px; color: #1a1a1a; cursor: pointer; }
-    25|        .checkbox-row input { width: auto; }
-    26|        .btn { padding: 10px 24px; background: #4f6eff; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
-    27|        .btn:hover { background: #3d5bd9; }
-    28|        .btn-ghost { background: transparent; border: 1px solid #27272a; color: #666; }
-    29|        .btn-ghost:hover { border-color: #4f6eff; color: #4f6eff; }
-    30|        .actions { display: flex; gap: 12px; margin-top: 24px; }
-    31|        .error { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
-    32|    </style>
-    33|</head>
-    34|<body>
-    35|    <nav class="admin-nav">
-    36|        <span class="brand">管理后台</span>
-    37|        <a href="/admin">仪表盘</a>
-    38|        <a href="/admin/projects" class="active">项目管理</a>
-    39|        <a href="/admin/profile">个人资料</a>
-    40|        <a href="/admin/themes">主题设置</a>
-    41|        <a href="/admin/analytics">数据统计</a>
-    42|        <span class="spacer"></span>
-    43|        <a href="/" target="_blank">查看前台</a>
-    44|        <a href="/admin/logout">退出登录</a>
-    45|    </nav>
-    46|    <div class="content">
-    47|        <h1>{{ "编辑项目" if project else "新建项目" }}</h1>
-    48|        {% if error %}<div class="error">{{ error }}</div>{% endif %}
-    49|        <form method="post" action="/admin/projects/save">
-    50|            <input type="hidden" name="pid" value="{{ project.id if project else 0 }}">
-    51|            <div class="row">
-    52|                <div class="form-group">
-    53|                    <label>名称</label>
-    54|                    <input type="text" name="name" value="{{ project.name if project else '' }}" required>
-    55|                </div>
-    56|                <div class="form-group">
-    57|                    <label>标识</label>
-    58|                    <input type="text" name="slug" value="{{ project.slug if project else '' }}" required>
-    59|                </div>
-    60|            </div>
-    61|            <div class="form-group">
-    62|                <label>简介</label>
-    63|                <input type="text" name="description" value="{{ project.description if project else '' }}">
-    64|            </div>
-    65|            <div class="form-group">
-    66|                <label>详细描述 (Markdown/HTML)</label>
-    67|                <textarea name="detail">{{ project.detail if project else '' }}</textarea>
-    68|            </div>
-    69|            <div class="row">
-    70|                <div class="form-group">
-    71|                    <label>技术栈（逗号分隔）</label>
-    72|                    <input type="text" name="tech_stack" value="{{ project.tech_stack if project else '' }}">
-    73|                </div>
-    74|                <div class="form-group">
-    75|                    <label>分类</label>
-    76|                    <input type="text" name="category" value="{{ project.category if project else '' }}">
-    77|                </div>
-    78|            </div>
-    79|            <div class="row">
-    80|                <div class="form-group">
-    81|                    <label>GitHub 地址</label>
-    82|                    <input type="text" name="github_url" value="{{ project.github_url if project else '' }}">
-    83|                </div>
-    84|                <div class="form-group">
-    85|                    <label>在线预览地址</label>
-    86|                    <input type="text" name="web_url" value="{{ project.web_url if project else '' }}">
-    87|                </div>
-    88|            </div>
-    89|            <div class="row">
-    90|                <div class="form-group">
-    91|                    <label>文档地址</label>
-    92|                    <input type="text" name="pages_url" value="{{ project.pages_url if project else '' }}">
-    93|                </div>
-    94|                <div class="form-group">
-    95|                    <label>排序</label>
-    96|                    <input type="number" name="sort_order" value="{{ project.sort_order if project else 0 }}">
-    97|                </div>
-    98|            </div>
-    99|            <div class="checkbox-row">
-   100|                <label><input type="checkbox" name="is_visible" value="1" {{ 'checked' if not project or project.is_visible else '' }}> 显示</label>
-   101|                <label><input type="checkbox" name="show_github" value="1" {{ 'checked' if not project or project.show_github else '' }}> 显示 GitHub</label>
-   102|                <label><input type="checkbox" name="show_web" value="1" {{ 'checked' if not project or project.show_web else '' }}> 显示 Web</label>
-   103|                <label><input type="checkbox" name="show_pages" value="1" {{ 'checked' if not project or project.show_pages else '' }}> 显示文档</label>
-   104|                <label><input type="checkbox" name="show_tech" value="1" {{ 'checked' if not project or project.show_tech else '' }}> 显示技术栈</label>
-   105|                <label><input type="checkbox" name="show_detail" value="1" {{ 'checked' if not project or project.show_detail else '' }}> 显示详情</label>
-   106|            </div>
-   107|            <div class="actions">
-   108|                <button type="submit" class="btn">保存</button>
-   109|                <a href="/admin/projects" class="btn btn-ghost">取消</a>
-   110|            </div>
-   111|        </form>
-   112|    </div>
-   113|</body>
-   114|</html>
-   115|
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ "Edit" if project else "New" }} Project - 管理后台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        .admin-nav { background: #fff; border-bottom: 1px solid #e0ddd5; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 0 24px; display: flex; align-items: center; height: 56px; }
+        .admin-nav a { color: #666; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
+        .admin-nav a:hover, .admin-nav a.active { color: #1a1a1a; border-bottom-color: #4f6eff; }
+        .admin-nav .spacer { flex: 1; }
+        .admin-nav .brand { color: #4f6eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+        .content { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; color: #666; margin-bottom: 6px; font-weight: 500; }
+        input, textarea, select { width: 100%; padding: 10px 14px; background: #fafaf8; border: 1px solid #d0cdc5; border-radius: 8px; color: #1a1a1a; font-size: 14px; font-family: inherit; outline: none; }
+        input:focus, textarea:focus { border-color: #4f6eff; }
+        textarea { min-height: 120px; resize: vertical; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .checkbox-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 20px; }
+        .checkbox-row label { display: flex; align-items: center; gap: 8px; color: #1a1a1a; cursor: pointer; }
+        .checkbox-row input { width: auto; }
+        .btn { padding: 10px 24px; background: #4f6eff; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn:hover { background: #3d5bd9; }
+        .btn-ghost { background: transparent; border: 1px solid #27272a; color: #666; }
+        .btn-ghost:hover { border-color: #4f6eff; color: #4f6eff; }
+        .actions { display: flex; gap: 12px; margin-top: 24px; }
+        .error { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <nav class="admin-nav">
+        <span class="brand">管理后台</span>
+        <a href="/admin">仪表盘</a>
+        <a href="/admin/projects" class="active">项目管理</a>
+        <a href="/admin/profile">个人资料</a>
+        <a href="/admin/themes">主题设置</a>
+        <a href="/admin/analytics">数据统计</a>
+        <span class="spacer"></span>
+        <a href="/" target="_blank">查看前台</a>
+        <a href="/admin/logout">退出登录</a>
+    </nav>
+    <div class="content">
+        <h1>{{ "编辑项目" if project else "新建项目" }}</h1>
+        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+        <form method="post" action="/admin/projects/save">
+            <input type="hidden" name="pid" value="{{ project.id if project else 0 }}">
+            <div class="row">
+                <div class="form-group">
+                    <label>名称</label>
+                    <input type="text" name="name" value="{{ project.name if project else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label>标识</label>
+                    <input type="text" name="slug" value="{{ project.slug if project else '' }}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>简介</label>
+                <input type="text" name="description" value="{{ project.description if project else '' }}">
+            </div>
+            <div class="form-group">
+                <label>详细描述 (Markdown/HTML)</label>
+                <textarea name="detail">{{ project.detail if project else '' }}</textarea>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>技术栈（逗号分隔）</label>
+                    <input type="text" name="tech_stack" value="{{ project.tech_stack if project else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>分类</label>
+                    <input type="text" name="category" value="{{ project.category if project else '' }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>GitHub 地址</label>
+                    <input type="text" name="github_url" value="{{ project.github_url if project else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>在线预览地址</label>
+                    <input type="text" name="web_url" value="{{ project.web_url if project else '' }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>文档地址</label>
+                    <input type="text" name="pages_url" value="{{ project.pages_url if project else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>排序</label>
+                    <input type="number" name="sort_order" value="{{ project.sort_order if project else 0 }}">
+                </div>
+            </div>
+            <div class="checkbox-row">
+                <label><input type="checkbox" name="is_visible" value="1" {{ 'checked' if not project or project.is_visible else '' }}> 显示</label>
+                <label><input type="checkbox" name="show_github" value="1" {{ 'checked' if not project or project.show_github else '' }}> 显示 GitHub</label>
+                <label><input type="checkbox" name="show_web" value="1" {{ 'checked' if not project or project.show_web else '' }}> 显示 Web</label>
+                <label><input type="checkbox" name="show_pages" value="1" {{ 'checked' if not project or project.show_pages else '' }}> 显示文档</label>
+                <label><input type="checkbox" name="show_tech" value="1" {{ 'checked' if not project or project.show_tech else '' }}> 显示技术栈</label>
+                <label><input type="checkbox" name="show_detail" value="1" {{ 'checked' if not project or project.show_detail else '' }}> 显示详情</label>
+            </div>
+            <div class="actions">
+                <button type="submit" class="btn">保存</button>
+                <a href="/admin/projects" class="btn btn-ghost">取消</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
