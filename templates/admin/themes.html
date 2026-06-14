@@ -1,39 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>主题设置 - 管理后台</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-        .admin-nav { background: #12121a; border-bottom: 1px solid #27272a; padding: 0 24px; display: flex; align-items: center; height: 56px; }
-        .admin-nav a { color: #a1a1aa; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
-        .admin-nav a:hover, .admin-nav a.active { color: #e4e4e7; border-bottom-color: #4f8eff; }
+        body { background: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+        .admin-nav { background: #fff; border-bottom: 1px solid #e0ddd5; padding: 0 24px; display: flex; align-items: center; height: 56px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .admin-nav a { color: #666; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .admin-nav a:hover { color: #1a1a1a; }
+        .admin-nav a.active { color: #1a1a1a; border-bottom-color: #4f6eff; }
         .admin-nav .spacer { flex: 1; }
-        .admin-nav .brand { color: #4f8eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+        .admin-nav .brand { color: #4f6eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+
         .content { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
-        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
-        .theme-card { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
-        .theme-card.active { border-color: #4f8eff; }
-        .theme-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .theme-name { font-size: 18px; font-weight: 600; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #0d3320; color: #4ade80; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+        .page-title { font-size: 24px; font-weight: 700; }
+
+        /* 按钮 */
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: #4f6eff; color: #fff; }
+        .btn-primary:hover { background: #3d5bd9; }
+        .btn-ghost { background: transparent; border: 1px solid #d0cdc5; color: #666; }
+        .btn-ghost:hover { border-color: #4f6eff; color: #4f6eff; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #fecaca; }
+
+        /* 主题卡片网格 */
+        .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .theme-card { background: #fff; border: 2px solid #e0ddd5; border-radius: 14px; overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
+        .theme-card:hover { border-color: #c0bdb5; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+        .theme-card.active { border-color: #4f6eff; box-shadow: 0 0 0 3px rgba(79,110,255,0.12); }
+
+        /* 主题预览色块 */
+        .theme-preview { height: 100px; display: flex; position: relative; }
+        .preview-bg { flex: 1; }
+        .preview-sidebar { width: 60px; display: flex; flex-direction: column; }
+        .preview-sidebar > div { flex: 1; }
+        .preview-card { position: absolute; bottom: 12px; left: 12px; right: 72px; height: 36px; border-radius: 6px; }
+
+        /* 主题信息 */
+        .theme-info { padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .theme-name { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+        .theme-desc { font-size: 12px; color: #999; margin-top: 2px; }
+        .theme-actions { display: flex; gap: 8px; }
+        .active-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #ecfdf5; color: #10b981; }
+
+        /* 自定义主题区块 */
+        .custom-section { margin-top: 40px; padding-top: 32px; border-top: 1px solid #e0ddd5; }
+        .custom-section-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+        .custom-card { background: #fff; border: 1px solid #e0ddd5; border-radius: 12px; padding: 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .custom-card-info { flex: 1; }
+        .custom-card-name { font-size: 14px; font-weight: 600; }
+        .custom-card-actions { display: flex; gap: 8px; }
+
+        /* 弹窗 */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: #fff; border-radius: 16px; width: 520px; max-height: 80vh; overflow-y: auto; box-shadow: 0 24px 48px rgba(0,0,0,0.15); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid #e0ddd5; display: flex; align-items: center; justify-content: space-between; }
+        .modal-title { font-size: 16px; font-weight: 700; }
+        .modal-close { background: none; border: none; font-size: 20px; color: #999; cursor: pointer; padding: 4px; }
+        .modal-close:hover { color: #1a1a1a; }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid #e0ddd5; display: flex; justify-content: flex-end; gap: 10px; }
+
         .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 14px; color: #a1a1aa; margin-bottom: 6px; font-weight: 500; }
-        input, textarea { width: 100%; padding: 10px 14px; background: #0a0a0f; border: 1px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 14px; font-family: monospace; outline: none; }
-        input:focus, textarea:focus { border-color: #4f8eff; }
-        textarea { min-height: 160px; resize: vertical; }
-        .btn { display: inline-block; padding: 8px 16px; background: #4f8eff; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
-        .btn:hover { background: #3b7aed; }
-        .btn-danger { background: #ef4444; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-sm { padding: 4px 10px; font-size: 12px; }
-        .actions { display: flex; gap: 8px; }
-        .inline-form { display: inline; }
-        .new-theme { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 24px; margin-top: 32px; }
-        .new-theme h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
-        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; font-weight: 500; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid #d0cdc5; border-radius: 8px; font-size: 14px; color: #1a1a1a; background: #fafaf8; outline: none; font-family: inherit; }
+        .form-group input:focus, .form-group textarea:focus { border-color: #4f6eff; background: #fff; }
+        .form-group textarea { min-height: 200px; resize: vertical; font-family: "SF Mono", "Fira Code", monospace; font-size: 12px; line-height: 1.6; }
+        .form-hint { font-size: 11px; color: #999; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -49,64 +89,122 @@
         <a href="/admin/logout">退出登录</a>
     </nav>
     <div class="content">
-        <h1>主题设置</h1>
-        {% for t in themes %}
-        <div class="theme-card {{ 'active' if t.is_active }}">
-            <div class="theme-header">
-                <div>
-                    <span class="theme-name">{{ t.name }}</span>
-                    {% if t.is_active %}<span class="badge">当前</span>{% endif %}
+        <div class="page-header">
+            <h1 class="page-title">主题设置</h1>
+            <button class="btn btn-ghost" onclick="openCustomModal()">+ 自定义主题</button>
+        </div>
+
+        <!-- 预设主题 -->
+        <div class="theme-grid">
+            {% for t in themes %}
+            <div class="theme-card {{ 'active' if t.is_active }}" onclick="activateTheme({{ t.id }})">
+                <div class="theme-preview" style="background: {{ (t.css_vars_parsed.get('--bg-primary', '#f5f5f0') if t.css_vars_parsed else '#f5f5f0') }}">
+                    <div class="preview-bg" style="background: {{ (t.css_vars_parsed.get('--bg-primary', '#f5f5f0') if t.css_vars_parsed else '#f5f5f0') }}"></div>
+                    <div class="preview-sidebar">
+                        <div style="background: {{ (t.css_vars_parsed.get('--bg-secondary', '#fff') if t.css_vars_parsed else '#fff') }}; opacity:0.6;"></div>
+                        <div style="background: {{ (t.css_vars_parsed.get('--accent', '#4f6eff') if t.css_vars_parsed else '#4f6eff') }}; opacity:0.4;"></div>
+                    </div>
+                    <div class="preview-card" style="background: {{ (t.css_vars_parsed.get('--bg-card', '#fff') if t.css_vars_parsed else '#fff') }}; border: 1px solid {{ (t.css_vars_parsed.get('--border', '#e0ddd5') if t.css_vars_parsed else '#e0ddd5') }};"></div>
                 </div>
-                <div class="actions">
-                    <form class="inline-form" method="post" action="/admin/themes/{{ t.id }}/delete" onsubmit="return confirm('删除 this theme?')">
-                        <button type="submit" class="btn btn-sm btn-danger">删除</button>
-                    </form>
+                <div class="theme-info">
+                    <div>
+                        <div class="theme-name">
+                            {{ t.name }}
+                            {% if t.is_active %}<span class="active-badge">当前</span>{% endif %}
+                        </div>
+                        <div class="theme-desc">{{ t.desc or '' }}</div>
+                    </div>
+                    <div class="theme-actions">
+                        {% if t.is_custom %}
+                        <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation(); editCustom({{ t.id }}, '{{ t.name }}', {{ t.css_vars }})">编辑</button>
+                        <form style="display:inline" method="post" action="/admin/themes/{{ t.id }}/delete" onsubmit="return confirm('确认删除此主题？')">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="event.stopPropagation();">删除</button>
+                        </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            <form method="post" action="/admin/themes/save">
-                <input type="hidden" name="tid" value="{{ t.id }}">
-                <div class="form-group">
-                    <label>名称</label>
-                    <input type="text" name="name" value="{{ t.name }}">
-                </div>
-                <div class="form-group">
-                    <label>CSS 变量 (JSON)</label>
-                    <textarea name="css_vars">{{ t.css_vars }}</textarea>
-                </div>
-                <label><input type="checkbox" name="is_active" value="1" {{ 'checked' if t.is_active else '' }}> 设为当前主题</label>
-                <br><br>
-                <button type="submit" class="btn btn-sm">更新主题</button>
-            </form>
+            {% endfor %}
         </div>
-        {% endfor %}
+    </div>
 
-        <div class="new-theme">
-            <h2>新建主题</h2>
+    <!-- 自定义主题弹窗 -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">新建自定义主题</span>
+                <button class="modal-close" onclick="closeCustomModal()">&times;</button>
+            </div>
             <form method="post" action="/admin/themes/save">
-                <input type="hidden" name="tid" value="0">
-                <div class="form-group">
-                    <label>名称</label>
-                    <input type="text" name="name" value="" required>
-                </div>
-                <div class="form-group">
-                    <label>CSS 变量 (JSON)</label>
-                    <textarea name="css_vars">{
-    "--bg-primary": "#0a0a0f",
-    "--bg-secondary": "#12121a",
-    "--bg-card": "#16161f",
-    "--text-primary": "#e4e4e7",
-    "--text-secondary": "#a1a1aa",
-    "--accent": "#4f8eff",
-    "--accent-hover": "#3b7aed",
-    "--border": "#27272a",
-    "--shadow": "0 4px 24px rgba(0,0,0,0.4)"
+                <div class="modal-body">
+                    <input type="hidden" name="tid" id="tid" value="0">
+                    <input type="hidden" name="is_custom" value="1">
+                    <div class="form-group">
+                        <label>主题名称</label>
+                        <input type="text" name="name" id="themeName" placeholder="例如：我的暗色主题" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CSS 变量</label>
+                        <textarea name="css_vars" id="themeCss">{
+    "--bg-primary": "#f5f5f0",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "#ffffff",
+    "--text-primary": "#1a1a1a",
+    "--text-secondary": "#666666",
+    "--accent": "#4f6eff",
+    "--accent-hover": "#3d5bd9",
+    "--border": "#e0ddd5",
+    "--shadow": "0 2px 12px rgba(0,0,0,0.06)"
 }</textarea>
+                        <div class="form-hint">填写 JSON 格式的 CSS 变量，修改颜色值即可自定义主题外观</div>
+                    </div>
                 </div>
-                <label><input type="checkbox" name="is_active" value="1"> 设为当前主题</label>
-                <br><br>
-                <button type="submit" class="btn">创建主题</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" onclick="closeCustomModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存主题</button>
+                </div>
             </form>
         </div>
     </div>
+
+    <script>
+    function activateTheme(tid) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/themes/save';
+        form.innerHTML = `<input type="hidden" name="tid" value="${tid}"><input type="hidden" name="is_active" value="1">`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function openCustomModal() {
+        document.getElementById('tid').value = '0';
+        document.getElementById('themeName').value = '';
+        document.getElementById('themeCss').value = JSON.stringify({
+            "--bg-primary": "#f5f5f0", "--bg-secondary": "#ffffff", "--bg-card": "#ffffff",
+            "--text-primary": "#1a1a1a", "--text-secondary": "#666666",
+            "--accent": "#4f6eff", "--accent-hover": "#3d5bd9",
+            "--border": "#e0ddd5", "--shadow": "0 2px 12px rgba(0,0,0,0.06)"
+        }, null, 4);
+        document.getElementById('modalTitle').textContent = '新建自定义主题';
+        document.getElementById('customModal').classList.add('show');
+    }
+
+    function editCustom(tid, name, cssVars) {
+        document.getElementById('tid').value = tid;
+        document.getElementById('themeName').value = name;
+        document.getElementById('themeCss').value = typeof cssVars === 'string' ? cssVars : JSON.stringify(cssVars, null, 4);
+        document.getElementById('modalTitle').textContent = '编辑自定义主题';
+        document.getElementById('customModal').classList.add('show');
+    }
+
+    function closeCustomModal() {
+        document.getElementById('customModal').classList.remove('show');
+    }
+
+    document.getElementById('customModal').addEventListener('click', function(e) {
+        if (e.target === this) closeCustomModal();
+    });
+    </script>
 </body>
 </html>

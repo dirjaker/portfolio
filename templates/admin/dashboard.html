@@ -1,35 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>仪表盘 - 管理后台</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0f; color: #e4e4e7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-        .admin-nav { background: #12121a; border-bottom: 1px solid #27272a; padding: 0 24px; display: flex; align-items: center; height: 56px; }
-        .admin-nav a { color: #a1a1aa; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
-        .admin-nav a:hover, .admin-nav a.active { color: #e4e4e7; border-bottom-color: #4f8eff; }
+        body { background: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+        /* Navigation */
+        .admin-nav { background: #fff; border-bottom: 1px solid #e0ddd5; padding: 0 24px; display: flex; align-items: center; height: 56px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .admin-nav a { color: #666; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .admin-nav a:hover { color: #1a1a1a; }
+        .admin-nav a.active { color: #1a1a1a; border-bottom-color: #4f6eff; }
         .admin-nav .spacer { flex: 1; }
-        .admin-nav .brand { color: #4f8eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+        .admin-nav .brand { color: #4f6eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+
+        /* Layout */
         .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
-        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
-        .stat { background: #16161f; border: 1px solid #27272a; border-radius: 12px; padding: 24px; }
-        .stat-label { font-size: 13px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-value { font-size: 36px; font-weight: 700; margin-top: 4px; color: #4f8eff; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #a1a1aa; border-bottom: 1px solid #27272a; }
-        td { padding: 12px 16px; border-bottom: 1px solid #1a1a24; font-size: 14px; }
-        .btn { display: inline-block; padding: 8px 16px; background: #4f8eff; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
-        .btn:hover { background: #3b7aed; }
-        .btn-danger { background: #ef4444; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-sm { padding: 4px 10px; font-size: 12px; }
-        .btn-ghost { background: transparent; border: 1px solid #27272a; color: #a1a1aa; }
-        .btn-ghost:hover { border-color: #4f8eff; color: #4f8eff; }
-        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-        .section-title { font-size: 20px; font-weight: 600; }
+        .page-header { margin-bottom: 32px; }
+        .page-title { font-size: 24px; font-weight: 700; color: #1a1a1a; }
+
+        /* Stat Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .stat-card { background: #fff; border: 1px solid #e0ddd5; border-radius: 12px; padding: 20px 24px; }
+        .stat-label { font-size: 13px; color: #888; margin-bottom: 4px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+        .stat-icon { float: right; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .stat-icon.blue { background: #eef2ff; color: #4f6eff; }
+        .stat-icon.green { background: #ecfdf5; color: #10b981; }
+        .stat-icon.orange { background: #fff7ed; color: #f59e0b; }
+        .stat-icon.purple { background: #f5f3ff; color: #8b5cf6; }
+
+        /* Two Column Layout */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        @media (max-width: 900px) { .grid-2, .stats-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 600px) { .grid-2, .stats-grid { grid-template-columns: 1fr; } }
+
+        /* Cards */
+        .card { background: #fff; border: 1px solid #e0ddd5; border-radius: 12px; padding: 24px; }
+        .card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 20px; }
+
+        /* Bar Chart */
+        .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 160px; padding-top: 8px; }
+        .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .bar { width: 100%; border-radius: 6px 6px 0 0; background: #4f6eff; min-height: 4px; transition: height 0.4s ease; }
+        .bar-label { font-size: 11px; color: #999; }
+        .bar-value { font-size: 11px; color: #666; font-weight: 600; }
+
+        /* Top Projects */
+        .top-list { list-style: none; }
+        .top-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0ede5; }
+        .top-item:last-child { border-bottom: none; }
+        .top-rank { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; margin-right: 12px; flex-shrink: 0; }
+        .top-rank.r1 { background: #fef3c7; color: #d97706; }
+        .top-rank.r2 { background: #e5e7eb; color: #6b7280; }
+        .top-rank.r3 { background: #fed7aa; color: #c2410c; }
+        .top-rank.r4, .top-rank.r5 { background: #f3f4f6; color: #9ca3af; }
+        .top-name { flex: 1; font-size: 14px; font-weight: 500; color: #1a1a1a; }
+        .top-count { font-size: 14px; font-weight: 600; color: #4f6eff; }
+        .top-bar-bg { flex: 1; height: 6px; background: #f0ede5; border-radius: 3px; margin: 0 12px; overflow: hidden; }
+        .top-bar-fill { height: 100%; background: #4f6eff; border-radius: 3px; transition: width 0.4s ease; }
+        .empty-hint { color: #999; font-size: 14px; text-align: center; padding: 40px 0; }
+
+        /* Recent Table */
+        .recent-table { width: 100%; border-collapse: collapse; }
+        .recent-table th { text-align: left; padding: 8px 0; font-size: 12px; color: #999; font-weight: 500; border-bottom: 1px solid #e0ddd5; }
+        .recent-table td { padding: 10px 0; font-size: 13px; color: #444; border-bottom: 1px solid #f5f3ee; }
+        .recent-table td:first-child { color: #1a1a1a; font-weight: 500; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; background: #f0ede5; color: #666; }
     </style>
 </head>
 <body>
@@ -45,35 +84,101 @@
         <a href="/admin/logout">退出登录</a>
     </nav>
     <div class="content">
-        <h1>仪表盘</h1>
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-label">项目管理</div>
+        <div class="page-header">
+            <h1 class="page-title">仪表盘</h1>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">P</div>
+                <div class="stat-label">项目总数</div>
                 <div class="stat-value">{{ total_projects }}</div>
             </div>
-            <div class="stat">
+            <div class="stat-card">
+                <div class="stat-icon green">V</div>
                 <div class="stat-label">总访问量</div>
                 <div class="stat-value">{{ total_views }}</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">T</div>
+                <div class="stat-label">今日访问</div>
+                <div class="stat-value">{{ today_views }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">U</div>
+                <div class="stat-label">独立访客</div>
+                <div class="stat-value">{{ unique_visitors }}</div>
+            </div>
         </div>
-        <div class="toolbar">
-            <h2 class="section-title">最近访问</h2>
+
+        <!-- 趋势 + 热门项目 -->
+        <div class="grid-2">
+            <!-- 近7天访问趋势 -->
+            <div class="card">
+                <div class="card-title">近 7 天访问趋势</div>
+                {% if daily_7 %}
+                {% set max_count = daily_7 | map(attribute='count') | max %}
+                <div class="bar-chart">
+                    {% for d in daily_7 %}
+                    <div class="bar-col">
+                        <div class="bar-value">{{ d.count }}</div>
+                        <div class="bar" style="height: {{ (d.count / max_count * 130) | int if max_count > 0 else 4 }}px;"></div>
+                        <div class="bar-label">{{ d.day[5:] }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-hint">暂无数据</div>
+                {% endif %}
+            </div>
+
+            <!-- 热门项目 TOP5 -->
+            <div class="card">
+                <div class="card-title">热门项目 TOP 5</div>
+                {% if top_projects %}
+                {% set max_view = top_projects[0].view_count %}
+                <ul class="top-list">
+                    {% for p in top_projects %}
+                    <li class="top-item">
+                        <span class="top-rank r{{ loop.index }}">{{ loop.index }}</span>
+                        <span class="top-name">{{ p.name }}</span>
+                        <div class="top-bar-bg">
+                            <div class="top-bar-fill" style="width: {{ (p.view_count / max_view * 100) | int if max_view > 0 else 0 }}%;"></div>
+                        </div>
+                        <span class="top-count">{{ p.view_count }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="empty-hint">暂无访问数据</div>
+                {% endif %}
+            </div>
         </div>
-        <table>
-            <thead>
-                <tr><th>页面</th><th>项目</th><th>IP 地址</th><th>时间</th></tr>
-            </thead>
-            <tbody>
-                {% for v in recent_views %}
-                <tr>
-                    <td>{{ v.page }}</td>
-                    <td>{{ v.project_name or "—" }}</td>
-                    <td>{{ v.ip_address }}</td>
-                    <td>{{ v.viewed_at }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        <!-- 最近访问 -->
+        <div class="card">
+            <div class="card-title">最近访问</div>
+            {% if recent_views %}
+            <table class="recent-table">
+                <thead>
+                    <tr><th>页面</th><th>项目</th><th>IP 地址</th><th>时间</th></tr>
+                </thead>
+                <tbody>
+                    {% for v in recent_views %}
+                    <tr>
+                        <td>{{ v.page }}</td>
+                        <td>{{ v.project_name or "—" }}</td>
+                        <td><span class="tag">{{ v.ip_address }}</span></td>
+                        <td>{{ v.viewed_at[:16] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-hint">暂无访问记录</div>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>

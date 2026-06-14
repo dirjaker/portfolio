@@ -125,15 +125,34 @@ def admin_dashboard(request: Request):
     db = get_db()
     total_projects = db.execute("SELECT COUNT(*) as c FROM project").fetchone()["c"]
     total_views = db.execute("SELECT COALESCE(SUM(view_count), 0) as c FROM project").fetchone()["c"]
+    today_views = db.execute(
+        "SELECT COUNT(*) as c FROM site_view WHERE DATE(viewed_at) = DATE('now')"
+    ).fetchone()["c"]
+    unique_visitors = db.execute(
+        "SELECT COUNT(DISTINCT ip_address) as c FROM site_view"
+    ).fetchone()["c"]
+    top_projects = db.execute(
+        "SELECT name, slug, view_count FROM project WHERE view_count > 0 ORDER BY view_count DESC LIMIT 5"
+    ).fetchall()
     recent_views = db.execute(
         "SELECT sv.*, p.name as project_name FROM site_view sv "
         "LEFT JOIN project p ON sv.page = p.slug "
-        "ORDER BY sv.viewed_at DESC LIMIT 20"
+        "ORDER BY sv.viewed_at DESC LIMIT 10"
+    ).fetchall()
+    # 近7天每日访问量
+    daily_7 = db.execute(
+        "SELECT DATE(viewed_at) as day, COUNT(*) as count FROM site_view "
+        "WHERE viewed_at >= datetime('now', '-7 days') GROUP BY DATE(viewed_at) ORDER BY day"
     ).fetchall()
     db.close()
     return templates.TemplateResponse(request, "admin/dashboard.html", {
         "total_projects": total_projects,
-        "total_views": total_views, "recent_views": [dict(v) for v in recent_views]
+        "total_views": total_views,
+        "today_views": today_views,
+        "unique_visitors": unique_visitors,
+        "top_projects": [dict(p) for p in top_projects],
+        "recent_views": [dict(v) for v in recent_views],
+        "daily_7": [dict(d) for d in daily_7],
     })
 
 @app.get("/admin/projects", response_class=HTMLResponse)
@@ -224,21 +243,33 @@ def admin_profile_save(request: Request, name: str = Form(""), title: str = Form
 def admin_themes(request: Request):
     require_admin(request)
     db = get_db()
-    themes = db.execute("SELECT * FROM theme ORDER BY id").fetchall()
+    themes = db.execute("SELECT * FROM theme ORDER BY is_active DESC, is_custom ASC, id").fetchall()
     db.close()
-    return templates.TemplateResponse(request, "admin/themes.html", {"themes": [dict(t) for t in themes]})
+    result = []
+    for t in themes:
+        d = dict(t)
+        try:
+            d["css_vars_parsed"] = json.loads(d["css_vars"])
+        except:
+            d["css_vars_parsed"] = {}
+        result.append(d)
+    return templates.TemplateResponse(request, "admin/themes.html", {"themes": result})
 
 @app.post("/admin/themes/save")
-def admin_theme_save(request: Request, tid: int = Form(0), name: str = Form(...), css_vars: str = Form(...),
-                      is_active: int = Form(0)):
+def admin_theme_save(request: Request, tid: int = Form(0), name: str = Form(""), css_vars: str = Form(""),
+                      is_active: int = Form(0), is_custom: int = Form(0)):
     require_admin(request)
     db = get_db()
-    if is_active:
+    if is_active and tid > 0:
+        # 只是激活预设主题，不需要更新 css_vars
         db.execute("UPDATE theme SET is_active = 0")
-    if tid > 0:
-        db.execute("UPDATE theme SET name=?, css_vars=?, is_active=? WHERE id=?", (name, css_vars, is_active, tid))
-    else:
-        db.execute("INSERT INTO theme (name, css_vars, is_active) VALUES (?,?,?)", (name, css_vars, is_active))
+        db.execute("UPDATE theme SET is_active = 1 WHERE id = ?", (tid,))
+    elif tid > 0:
+        # 编辑已有主题
+        db.execute("UPDATE theme SET name=?, css_vars=? WHERE id=?", (name, css_vars, tid))
+    elif name and css_vars:
+        # 新建自定义主题
+        db.execute("INSERT INTO theme (name, css_vars, is_custom, desc) VALUES (?, ?, 1, '自定义主题')", (name, css_vars))
     db.commit()
     db.close()
     return RedirectResponse("/admin/themes", status_code=303)
