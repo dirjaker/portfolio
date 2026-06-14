@@ -128,9 +128,9 @@ def admin_dashboard(request: Request):
     total_projects = db.execute("SELECT COUNT(*) as c FROM project").fetchone()["c"]
     visible_projects = db.execute("SELECT COUNT(*) as c FROM project WHERE is_visible = 1").fetchone()["c"]
     today_views = db.execute(
-        "SELECT COUNT(*) as c FROM site_view WHERE DATE(viewed_at) = DATE('now')"
+        "SELECT COUNT(*) as c FROM site_view WHERE page = 'home' AND DATE(viewed_at) = DATE('now')"
     ).fetchone()["c"]
-    total_views = db.execute("SELECT COUNT(*) as c FROM site_view").fetchone()["c"]
+    total_views = db.execute("SELECT COUNT(*) as c FROM site_view WHERE page = 'home'").fetchone()["c"]
     top_projects = db.execute(
         "SELECT name, slug, view_count FROM project WHERE view_count > 0 ORDER BY view_count DESC LIMIT 5"
     ).fetchall()
@@ -147,10 +147,10 @@ def admin_dashboard(request: Request):
     ).fetchall()
     # 本月 vs 上月
     this_month = db.execute(
-        "SELECT COUNT(*) as c FROM site_view WHERE viewed_at >= date('now', 'start of month')"
+        "SELECT COUNT(*) as c FROM site_view WHERE page = 'home' AND viewed_at >= date('now', 'start of month')"
     ).fetchone()["c"]
     last_month = db.execute(
-        "SELECT COUNT(*) as c FROM site_view WHERE viewed_at >= date('now', 'start of month', '-1 month') AND viewed_at < date('now', 'start of month')"
+        "SELECT COUNT(*) as c FROM site_view WHERE page = 'home' AND viewed_at >= date('now', 'start of month', '-1 month') AND viewed_at < date('now', 'start of month')"
     ).fetchone()["c"]
     db.close()
     # 服务器状态
