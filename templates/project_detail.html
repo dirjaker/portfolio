@@ -1,275 +1,275 @@
-{% extends "base.html" %}
-{% block title %}{{ project.name }}{% endblock %}
-{% block head %}
-<style>
-{% for key, val in theme_vars.items() %}
-{{ key }}: {{ val }};
-{% endfor %}
-</style>
-{% endblock %}
-{% block body %}
-<div class="grid-bg"></div>
-<div class="container">
-    <header class="detail-header">
-        <a href="/" class="back-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Back to Projects
-        </a>
-    </header>
-
-    <main class="detail-content">
-        <div class="detail-title-section">
-            <h1 class="detail-title">{{ project.name }}</h1>
-            {% if project.category %}
-            <span class="detail-category">{{ project.category }}</span>
-            {% endif %}
-        </div>
-
-        {% if project.description %}
-        <p class="detail-description">{{ project.description }}</p>
-        {% endif %}
-
-        {% if project.detail %}
-        <div class="detail-body">
-            {{ project.detail | safe }}
-        </div>
-        {% endif %}
-
-        {% if project.tech_stack %}
-        <div class="detail-tech">
-            <h3>Tech Stack</h3>
-            <div class="tech-tags">
-                {% for tech in project.tech_stack.split(',') %}
-                <span class="tech-tag">{{ tech.strip() }}</span>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <div class="detail-links">
-            {% if project.show_github and project.github_url %}
-            <a href="{{ project.github_url }}" target="_blank" rel="noopener" class="detail-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                GitHub
-            </a>
-            {% endif %}
-            {% if project.show_web and project.web_url %}
-            <a href="{{ project.web_url }}" target="_blank" rel="noopener" class="detail-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                </svg>
-                Website
-            </a>
-            {% endif %}
-            {% if project.show_pages and project.pages_url %}
-            <a href="{{ project.pages_url }}" target="_blank" rel="noopener" class="detail-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                </svg>
-                Documentation
-            </a>
-            {% endif %}
-        </div>
-
-        <div class="detail-meta">
-            <span class="meta-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                </svg>
-                {{ project.view_count }} views
-            </span>
-        </div>
-    </main>
-</div>
-
-<style>
-.detail-header {
-    padding: 40px 0 0;
-}
-
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: color 0.2s;
-}
-
-.back-link:hover {
-    color: var(--accent);
-}
-
-.detail-content {
-    max-width: 800px;
-    margin: 40px auto 80px;
-}
-
-.detail-title-section {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-}
-
-.detail-title {
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -1px;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.detail-category {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--accent);
-    background: rgba(79, 142, 255, 0.1);
-    border: 1px solid rgba(79, 142, 255, 0.2);
-    padding: 4px 12px;
-    border-radius: 6px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-}
-
-.detail-description {
-    font-size: 18px;
-    color: var(--text-secondary);
-    line-height: 1.7;
-    margin-bottom: 32px;
-}
-
-.detail-body {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px;
-    margin-bottom: 32px;
-    line-height: 1.8;
-    color: var(--text-primary);
-}
-
-.detail-body h2, .detail-body h3 {
-    margin-top: 24px;
-    margin-bottom: 12px;
-    color: var(--text-primary);
-}
-
-.detail-body p {
-    margin-bottom: 16px;
-}
-
-.detail-body ul, .detail-body ol {
-    margin-bottom: 16px;
-    padding-left: 24px;
-}
-
-.detail-body li {
-    margin-bottom: 8px;
-}
-
-.detail-body code {
-    background: rgba(79, 142, 255, 0.1);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.detail-body pre {
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    overflow-x: auto;
-    margin-bottom: 16px;
-}
-
-.detail-body pre code {
-    background: none;
-    padding: 0;
-}
-
-.detail-tech {
-    margin-bottom: 32px;
-}
-
-.detail-tech h3 {
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-}
-
-.detail-links {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 32px;
-}
-
-.detail-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text-primary);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.detail-link:hover {
-    border-color: var(--accent);
-    background: rgba(79, 142, 255, 0.05);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(79, 142, 255, 0.1);
-}
-
-.detail-meta {
-    padding-top: 32px;
-    border-top: 1px solid var(--border);
-}
-
-.meta-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text-secondary);
-    font-size: 14px;
-}
-
-@media (max-width: 768px) {
-    .detail-title {
-        font-size: 28px;
-    }
-    
-    .detail-content {
-        margin: 24px auto 60px;
-    }
-    
-    .detail-body {
-        padding: 24px;
-    }
-}
-</style>
-{% endblock %}
+     1|{% extends "base.html" %}
+     2|{% block title %}{{ project.name }}{% endblock %}
+     3|{% block head %}
+     4|<style>
+     5|{% for key, val in theme_vars.items() %}
+     6|{{ key }}: {{ val }};
+     7|{% endfor %}
+     8|</style>
+     9|{% endblock %}
+    10|{% block body %}
+    11|<div class="grid-bg"></div>
+    12|<div class="container">
+    13|    <header class="detail-header">
+    14|        <a href="/" class="back-link">
+    15|            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    16|                <path d="M19 12H5M12 19l-7-7 7-7"/>
+    17|            </svg>
+    18|            返回项目列表
+    19|        </a>
+    20|    </header>
+    21|
+    22|    <main class="detail-content">
+    23|        <div class="detail-title-section">
+    24|            <h1 class="detail-title">{{ project.name }}</h1>
+    25|            {% if project.category %}
+    26|            <span class="detail-category">{{ project.category }}</span>
+    27|            {% endif %}
+    28|        </div>
+    29|
+    30|        {% if project.description %}
+    31|        <p class="detail-description">{{ project.description }}</p>
+    32|        {% endif %}
+    33|
+    34|        {% if project.detail %}
+    35|        <div class="detail-body">
+    36|            {{ project.detail | safe }}
+    37|        </div>
+    38|        {% endif %}
+    39|
+    40|        {% if project.tech_stack %}
+    41|        <div class="detail-tech">
+    42|            <h3>技术栈</h3>
+    43|            <div class="tech-tags">
+    44|                {% for tech in project.tech_stack.split(',') %}
+    45|                <span class="tech-tag">{{ tech.strip() }}</span>
+    46|                {% endfor %}
+    47|            </div>
+    48|        </div>
+    49|        {% endif %}
+    50|
+    51|        <div class="detail-links">
+    52|            {% if project.show_github and project.github_url %}
+    53|            <a href="{{ project.github_url }}" target="_blank" rel="noopener" class="detail-link">
+    54|                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    55|                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+    56|                </svg>
+    57|                GitHub
+    58|            </a>
+    59|            {% endif %}
+    60|            {% if project.show_web and project.web_url %}
+    61|            <a href="{{ project.web_url }}" target="_blank" rel="noopener" class="detail-link">
+    62|                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    63|                    <circle cx="12" cy="12" r="10"/>
+    64|                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    65|                </svg>
+    66|                Website
+    67|            </a>
+    68|            {% endif %}
+    69|            {% if project.show_pages and project.pages_url %}
+    70|            <a href="{{ project.pages_url }}" target="_blank" rel="noopener" class="detail-link">
+    71|                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    72|                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    73|                    <polyline points="14 2 14 8 20 8"/>
+    74|                    <line x1="16" y1="13" x2="8" y2="13"/>
+    75|                    <line x1="16" y1="17" x2="8" y2="17"/>
+    76|                </svg>
+    77|                Documentation
+    78|            </a>
+    79|            {% endif %}
+    80|        </div>
+    81|
+    82|        <div class="detail-meta">
+    83|            <span class="meta-item">
+    84|                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    85|                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    86|                    <circle cx="12" cy="12" r="3"/>
+    87|                </svg>
+    88|                {{ project.view_count }} 次访问
+    89|            </span>
+    90|        </div>
+    91|    </main>
+    92|</div>
+    93|
+    94|<style>
+    95|.detail-header {
+    96|    padding: 40px 0 0;
+    97|}
+    98|
+    99|.back-link {
+   100|    display: inline-flex;
+   101|    align-items: center;
+   102|    gap: 8px;
+   103|    color: var(--text-secondary);
+   104|    text-decoration: none;
+   105|    font-size: 14px;
+   106|    font-weight: 500;
+   107|    transition: color 0.2s;
+   108|}
+   109|
+   110|.back-link:hover {
+   111|    color: var(--accent);
+   112|}
+   113|
+   114|.detail-content {
+   115|    max-width: 800px;
+   116|    margin: 40px auto 80px;
+   117|}
+   118|
+   119|.detail-title-section {
+   120|    display: flex;
+   121|    align-items: center;
+   122|    gap: 16px;
+   123|    margin-bottom: 24px;
+   124|    flex-wrap: wrap;
+   125|}
+   126|
+   127|.detail-title {
+   128|    font-size: 36px;
+   129|    font-weight: 700;
+   130|    letter-spacing: -1px;
+   131|    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+   132|    -webkit-background-clip: text;
+   133|    -webkit-text-fill-color: transparent;
+   134|    background-clip: text;
+   135|}
+   136|
+   137|.detail-category {
+   138|    font-size: 12px;
+   139|    font-weight: 600;
+   140|    color: var(--accent);
+   141|    background: rgba(79, 142, 255, 0.1);
+   142|    border: 1px solid rgba(79, 142, 255, 0.2);
+   143|    padding: 4px 12px;
+   144|    border-radius: 6px;
+   145|    letter-spacing: 0.5px;
+   146|    text-transform: uppercase;
+   147|}
+   148|
+   149|.detail-description {
+   150|    font-size: 18px;
+   151|    color: var(--text-secondary);
+   152|    line-height: 1.7;
+   153|    margin-bottom: 32px;
+   154|}
+   155|
+   156|.detail-body {
+   157|    background: var(--bg-card);
+   158|    border: 1px solid var(--border);
+   159|    border-radius: 16px;
+   160|    padding: 32px;
+   161|    margin-bottom: 32px;
+   162|    line-height: 1.8;
+   163|    color: var(--text-primary);
+   164|}
+   165|
+   166|.detail-body h2, .detail-body h3 {
+   167|    margin-top: 24px;
+   168|    margin-bottom: 12px;
+   169|    color: var(--text-primary);
+   170|}
+   171|
+   172|.detail-body p {
+   173|    margin-bottom: 16px;
+   174|}
+   175|
+   176|.detail-body ul, .detail-body ol {
+   177|    margin-bottom: 16px;
+   178|    padding-left: 24px;
+   179|}
+   180|
+   181|.detail-body li {
+   182|    margin-bottom: 8px;
+   183|}
+   184|
+   185|.detail-body code {
+   186|    background: rgba(79, 142, 255, 0.1);
+   187|    padding: 2px 6px;
+   188|    border-radius: 4px;
+   189|    font-size: 14px;
+   190|}
+   191|
+   192|.detail-body pre {
+   193|    background: var(--bg-primary);
+   194|    border: 1px solid var(--border);
+   195|    border-radius: 8px;
+   196|    padding: 16px;
+   197|    overflow-x: auto;
+   198|    margin-bottom: 16px;
+   199|}
+   200|
+   201|.detail-body pre code {
+   202|    background: none;
+   203|    padding: 0;
+   204|}
+   205|
+   206|.detail-tech {
+   207|    margin-bottom: 32px;
+   208|}
+   209|
+   210|.detail-tech h3 {
+   211|    font-size: 14px;
+   212|    font-weight: 600;
+   213|    text-transform: uppercase;
+   214|    letter-spacing: 1px;
+   215|    color: var(--text-secondary);
+   216|    margin-bottom: 12px;
+   217|}
+   218|
+   219|.detail-links {
+   220|    display: flex;
+   221|    gap: 12px;
+   222|    flex-wrap: wrap;
+   223|    margin-bottom: 32px;
+   224|}
+   225|
+   226|.detail-link {
+   227|    display: inline-flex;
+   228|    align-items: center;
+   229|    gap: 8px;
+   230|    padding: 12px 24px;
+   231|    background: var(--bg-card);
+   232|    border: 1px solid var(--border);
+   233|    border-radius: 12px;
+   234|    color: var(--text-primary);
+   235|    text-decoration: none;
+   236|    font-size: 14px;
+   237|    font-weight: 500;
+   238|    transition: all 0.2s ease;
+   239|}
+   240|
+   241|.detail-link:hover {
+   242|    border-color: var(--accent);
+   243|    background: rgba(79, 142, 255, 0.05);
+   244|    transform: translateY(-2px);
+   245|    box-shadow: 0 4px 12px rgba(79, 142, 255, 0.1);
+   246|}
+   247|
+   248|.detail-meta {
+   249|    padding-top: 32px;
+   250|    border-top: 1px solid var(--border);
+   251|}
+   252|
+   253|.meta-item {
+   254|    display: inline-flex;
+   255|    align-items: center;
+   256|    gap: 6px;
+   257|    color: var(--text-secondary);
+   258|    font-size: 14px;
+   259|}
+   260|
+   261|@media (max-width: 768px) {
+   262|    .detail-title {
+   263|        font-size: 28px;
+   264|    }
+   265|    
+   266|    .detail-content {
+   267|        margin: 24px auto 60px;
+   268|    }
+   269|    
+   270|    .detail-body {
+   271|        padding: 24px;
+   272|    }
+   273|}
+   274|</style>
+   275|{% endblock %}
