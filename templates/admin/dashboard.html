@@ -190,17 +190,30 @@
             <div class="card">
                 <div class="card-header"><span class="card-title">项目分类统计</span></div>
                 {% if categories %}
-                {% set max_cat = categories | map(attribute='count') | max %}
+                {% set total_cat = categories | map(attribute='count') | sum %}
+                {% set colors = ['#4f6eff','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4'] %}
+                {% set ns = namespace(pct=0, gradient_parts=[]) %}
                 {% for c in categories %}
-                <div class="cat-item">
-                    <span class="cat-name">{{ c.cat }}</span>
-                    <div class="cat-bar-bg">
-                        <div class="cat-bar-fill" style="width: {{ (c.count / max_cat * 100) | int }}%;">
-                            <span class="cat-bar-text">{{ c.count }}</span>
+                    {% set seg = (c.count / total_cat * 100) %}
+                    {% set color = colors[loop.index0 % colors|length] %}
+                    {% if ns.gradient_parts.append(color ~ ' ' ~ ns.pct ~ '% ' ~ (ns.pct + seg) ~ '%') %}{% endif %}
+                    {% set ns.pct = ns.pct + seg %}
+                {% endfor %}
+                <div style="display:flex; align-items:center; gap:24px;">
+                    <div style="width:120px; height:120px; border-radius:50%; background:conic-gradient({{ ns.gradient_parts|join(', ') }}); flex-shrink:0;"></div>
+                    <div style="flex:1;">
+                        {% for c in categories %}
+                        {% set color = colors[loop.index0 % colors|length] %}
+                        {% set pct = (c.count / total_cat * 100) | round(1) %}
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                            <div style="width:10px; height:10px; border-radius:3px; background:{{ color }}; flex-shrink:0;"></div>
+                            <span style="font-size:13px; color:#444; flex:1;">{{ c.cat }}</span>
+                            <span style="font-size:13px; font-weight:600; color:#1a1a1a;">{{ c.count }}</span>
+                            <span style="font-size:12px; color:#999; width:42px; text-align:right;">{{ pct }}%</span>
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
-                {% endfor %}
                 {% else %}
                 <div class="empty-hint">暂无项目</div>
                 {% endif %}
@@ -237,8 +250,27 @@
             </div>
         </div>
 
-        <!-- 折线图 + TOP5 -->
+        <!-- TOP5 + 折线图 -->
         <div class="grid-2">
+            <div class="card">
+                <div class="card-title">热门项目 TOP 5</div>
+                {% if top_projects %}
+                {% set max_view = top_projects[0].view_count %}
+                <ul class="top-list">
+                    {% for p in top_projects %}
+                    <li class="top-item">
+                        <span class="top-rank r{{ loop.index }}">{{ loop.index }}</span>
+                        <span class="top-name">{{ p.name }}</span>
+                        <div class="top-bar-bg"><div class="top-bar-fill" style="width: {{ (p.view_count / max_view * 100) | int if max_view > 0 else 0 }}%;"></div></div>
+                        <span class="top-count">{{ p.view_count }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="empty-hint">暂无访问数据</div>
+                {% endif %}
+            </div>
+
             <div class="card">
                 <div class="card-title">近 7 天访问趋势</div>
                 {% if daily_7 %}
@@ -277,25 +309,6 @@
                 </div>
                 {% else %}
                 <div class="empty-hint">暂无数据</div>
-                {% endif %}
-            </div>
-
-            <div class="card">
-                <div class="card-title">热门项目 TOP 5</div>
-                {% if top_projects %}
-                {% set max_view = top_projects[0].view_count %}
-                <ul class="top-list">
-                    {% for p in top_projects %}
-                    <li class="top-item">
-                        <span class="top-rank r{{ loop.index }}">{{ loop.index }}</span>
-                        <span class="top-name">{{ p.name }}</span>
-                        <div class="top-bar-bg"><div class="top-bar-fill" style="width: {{ (p.view_count / max_view * 100) | int if max_view > 0 else 0 }}%;"></div></div>
-                        <span class="top-count">{{ p.view_count }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <div class="empty-hint">暂无访问数据</div>
                 {% endif %}
             </div>
         </div>
