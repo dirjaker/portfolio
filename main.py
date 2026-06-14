@@ -1,7 +1,9 @@
 import json
+import shutil
+import psutil
 from datetime import datetime
 from pathlib import Path
-from fastapi import FastAPI, Request, Form, Depends, HTTPException
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -132,16 +134,38 @@ def admin_dashboard(request: Request):
     top_projects = db.execute(
         "SELECT name, slug, view_count FROM project WHERE view_count > 0 ORDER BY view_count DESC LIMIT 5"
     ).fetchall()
-    # 最近访问：只看首页
     recent_home = db.execute(
         "SELECT ip_address, viewed_at FROM site_view WHERE page = 'home' ORDER BY viewed_at DESC LIMIT 10"
     ).fetchall()
-    # 近7天每日访问量
     daily_7 = db.execute(
         "SELECT DATE(viewed_at) as day, COUNT(*) as count FROM site_view "
         "WHERE viewed_at >= datetime('now', '-7 days') GROUP BY DATE(viewed_at) ORDER BY day"
     ).fetchall()
+    # 项目分类统计
+    categories = db.execute(
+        "SELECT COALESCE(category, '未分类') as cat, COUNT(*) as count FROM project GROUP BY category ORDER BY count DESC"
+    ).fetchall()
+    # 本月 vs 上月
+    this_month = db.execute(
+        "SELECT COUNT(*) as c FROM site_view WHERE viewed_at >= date('now', 'start of month')"
+    ).fetchone()["c"]
+    last_month = db.execute(
+        "SELECT COUNT(*) as c FROM site_view WHERE viewed_at >= date('now', 'start of month', '-1 month') AND viewed_at < date('now', 'start of month')"
+    ).fetchone()["c"]
     db.close()
+    # 服务器状态
+    cpu_percent = psutil.cpu_percent(interval=0.1)
+    mem = psutil.virtual_memory()
+    disk = shutil.disk_usage("/")
+    server_stats = {
+        "cpu": round(cpu_percent, 1),
+        "mem_used": round(mem.used / (1024**3), 1),
+        "mem_total": round(mem.total / (1024**3), 1),
+        "mem_percent": mem.percent,
+        "disk_used": round(disk.used / (1024**3), 1),
+        "disk_total": round(disk.total / (1024**3), 1),
+        "disk_percent": round(disk.used / disk.total * 100, 1),
+    }
     return templates.TemplateResponse(request, "admin/dashboard.html", {
         "total_projects": total_projects,
         "visible_projects": visible_projects,
@@ -150,7 +174,39 @@ def admin_dashboard(request: Request):
         "top_projects": [dict(p) for p in top_projects],
         "recent_home": [dict(v) for v in recent_home],
         "daily_7": [dict(d) for d in daily_7],
+        "categories": [dict(c) for c in categories],
+        "this_month": this_month,
+        "last_month": last_month,
+        "server_stats": server_stats,
     })
+
+@app.get("/api/admin/views")
+def api_admin_views(request: Request, page_num: int = Query(1), page_size: int = Query(20),
+                    ip_filter: str = Query(""), date_from: str = Query(""), date_to: str = Query("")):
+    require_admin(request)
+    db = get_db()
+    where = ["1=1"]
+    params = []
+    if ip_filter:
+        where.append("sv.ip_address LIKE ?")
+        params.append(f"%{ip_filter}%")
+    if date_from:
+        where.append("DATE(sv.viewed_at) >= ?")
+        params.append(date_from)
+    if date_to:
+        where.append("DATE(sv.viewed_at) <= ?")
+        params.append(date_to)
+    where_sql = " AND ".join(where)
+    total = db.execute(f"SELECT COUNT(*) as c FROM site_view sv WHERE {where_sql}", params).fetchone()["c"]
+    offset = (page_num - 1) * page_size
+    rows = db.execute(
+        f"SELECT sv.ip_address, sv.viewed_at, sv.page, p.name as project_name FROM site_view sv "
+        f"LEFT JOIN project p ON sv.page = p.slug WHERE {where_sql} "
+        f"ORDER BY sv.viewed_at DESC LIMIT ? OFFSET ?",
+        params + [page_size, offset]
+    ).fetchall()
+    db.close()
+    return {"total": total, "page": page_num, "pages": (total + page_size - 1) // page_size, "rows": [dict(r) for r in rows]}
 
 @app.get("/admin/projects", response_class=HTMLResponse)
 def admin_projects(request: Request):
