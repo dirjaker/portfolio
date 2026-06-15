@@ -16,17 +16,17 @@ def get_db():
 PRESET_THEMES = [
     {
         "name": "暖日",
-        "desc": "温暖的米白色调，适合日常使用",
+        "desc": "温暖米灰色调，柔和舒适",
         "css_vars": """{
-    "--bg-primary": "#f5f0e8",
-    "--bg-secondary": "#faf7f2",
+    "--bg-primary": "#f8f6f1",
+    "--bg-secondary": "#ffffff",
     "--bg-card": "#ffffff",
-    "--text-primary": "#2c2520",
-    "--text-secondary": "#8a7e72",
-    "--accent": "#c47d3c",
-    "--accent-hover": "#b06c2e",
-    "--border": "#e0d8cc",
-    "--shadow": "0 2px 12px rgba(44,37,32,0.06)"
+    "--text-primary": "#333333",
+    "--text-secondary": "#666666",
+    "--accent": "#3571d8",
+    "--accent-hover": "#2a5bb8",
+    "--border": "#e8e6e1",
+    "--shadow": "0 2px 12px rgba(0,0,0,0.06)"
 }""",
     },
     {
@@ -89,6 +89,21 @@ PRESET_THEMES = [
     "--shadow": "0 2px 12px rgba(26,46,26,0.06)"
 }""",
     },
+    {
+        "name": "极光",
+        "desc": "梦幻紫蓝色调，现代感十足",
+        "css_vars": """{
+    "--bg-primary": "#f0f4ff",
+    "--bg-secondary": "#e8eeff",
+    "--bg-card": "#ffffff",
+    "--text-primary": "#1e293b",
+    "--text-secondary": "#64748b",
+    "--accent": "#6366f1",
+    "--accent-hover": "#4f46e5",
+    "--border": "#e0e7ff",
+    "--shadow": "0 2px 12px rgba(99,102,241,0.08)"
+}""",
+    },
 ]
 
 
@@ -110,6 +125,7 @@ def init_db():
             title TEXT,
             bio TEXT,
             avatar_url TEXT,
+            avatar_position TEXT DEFAULT '50,50',
             github_url TEXT,
             email TEXT,
             location TEXT
@@ -153,6 +169,17 @@ def init_db():
             is_custom INTEGER DEFAULT 0,
             desc TEXT DEFAULT ''
         );
+
+        CREATE TABLE IF NOT EXISTS site_setting (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS avatar_history (
+            id INTEGER PRIMARY KEY,
+            avatar_url TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
     """)
 
     # 添加 desc 和 is_custom 列（如果不存在）
@@ -162,6 +189,10 @@ def init_db():
         pass
     try:
         cursor.execute("ALTER TABLE theme ADD COLUMN desc TEXT DEFAULT ''")
+    except:
+        pass
+    try:
+        cursor.execute("ALTER TABLE profile ADD COLUMN avatar_position TEXT DEFAULT '50,50'")
     except:
         pass
 

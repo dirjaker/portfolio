@@ -2,62 +2,422 @@
 {% block title %}{{ profile.name or "Portfolio" }}{% endblock %}
 {% block head %}
 <style>
+:root {
 {% for key, val in theme_vars.items() %}
-{{ key }}: {{ val }};
+    {{ key }}: {{ val }};
 {% endfor %}
+}
+</style>
+<style>
+/* ========== 版本A-Plus：完全重写，覆盖style.css ========== */
+
+/* Hero区域 - 无卡片，融入背景 */
+.hero {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.hero-card {
+    background: var(--bg-secondary) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 100px 80px 110px !important;
+    position: relative !important;
+    overflow: visible !important;
+    max-width: none !important;
+}
+
+.hero-card::before,
+.hero-card::after {
+    display: none !important;
+}
+
+.hero-inner {
+    display: flex !important;
+    align-items: center !important;
+    gap: 50px !important;
+    max-width: 1100px !important;
+    margin: 0 auto !important;
+}
+
+/* 头像 - 220px大圆形 */
+.hero-avatar-section {
+    flex-shrink: 0 !important;
+}
+
+.avatar {
+    width: 220px !important;
+    height: 220px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, var(--accent), #7c9fff) !important;
+    border: none !important;
+    margin-bottom: 0 !important;
+    object-fit: cover !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-size: 88px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 20px 40px rgba(79,110,255,0.3) !important;
+}
+
+/* 个人信息区域 */
+.hero-info {
+    flex: 1 !important;
+}
+
+.hero-name {
+    font-size: 42px !important;
+    font-weight: 700 !important;
+    letter-spacing: -1px !important;
+    line-height: 1.2 !important;
+    margin-bottom: 8px !important;
+    color: var(--text-primary) !important;
+}
+
+.hero-title {
+    font-size: 18px !important;
+    color: var(--accent) !important;
+    font-weight: 600 !important;
+    margin-bottom: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.hero-title::before {
+    content: '' !important;
+    display: inline-block !important;
+    width: 3px !important;
+    height: 20px !important;
+    background: var(--accent) !important;
+    border-radius: 2px !important;
+}
+
+.hero-bio {
+    font-size: 15px !important;
+    color: var(--text-secondary) !important;
+    line-height: 1.8 !important;
+    margin-bottom: 24px !important;
+    max-width: 520px !important;
+}
+
+/* 按钮区域 */
+.hero-links {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+}
+
+.social-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: var(--text-secondary) !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    padding: 10px 20px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    transition: all 0.2s ease !important;
+    background: var(--bg-card) !important;
+    cursor: pointer !important;
+}
+
+.social-link:hover {
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    background: rgba(53, 113, 216, 0.05) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(53, 113, 216, 0.1) !important;
+}
+
+.social-link.location {
+    cursor: default !important;
+}
+
+.social-link svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+/* Email按钮复制提示 */
+.email-copy-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text-primary, #1a1a1a);
+    color: var(--bg-primary, #f8f6f1);
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 9999;
+    pointer-events: none;
+}
+.email-copy-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* 项目区域 */
+.projects-section {
+    padding: 40px 0 80px !important;
+}
+
+.section-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 32px !important;
+}
+
+.section-title {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.section-title::before {
+    content: '' !important;
+    display: inline-block !important;
+    width: 4px !important;
+    height: 24px !important;
+    background: var(--accent) !important;
+    border-radius: 2px !important;
+}
+
+.section-count {
+    font-size: 14px !important;
+    color: var(--text-secondary) !important;
+    font-weight: 400 !important;
+}
+
+/* 底部优化 */
+.footer {
+    margin-top: 0 !important;
+    padding: 40px 0 !important;
+    border-top: 1px solid var(--border) !important;
+}
+
+.footer-content {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    max-width: 1100px !important;
+    margin: 0 auto !important;
+    padding: 0 24px !important;
+}
+
+.footer-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 24px !important;
+}
+
+.footer-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+.footer-links {
+    display: flex !important;
+    gap: 16px !important;
+}
+
+.footer-links a {
+    color: var(--text-secondary) !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    transition: color 0.2s !important;
+}
+
+.footer-links a:hover {
+    color: var(--accent) !important;
+}
+
+.footer-divider {
+    width: 1px !important;
+    height: 16px !important;
+    background: var(--border) !important;
+}
+
+.footer-copyright {
+    color: var(--text-secondary) !important;
+    font-size: 14px !important;
+}
+
+.footer-tech {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: var(--text-secondary) !important;
+    font-size: 12px !important;
+    opacity: 0.6 !important;
+}
+
+.footer-tech svg {
+    width: 14px !important;
+    height: 14px !important;
+    fill: var(--text-secondary) !important;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .hero-card {
+        padding: 40px 20px 50px !important;
+    }
+    .hero-inner {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 30px !important;
+    }
+    .avatar {
+        width: 180px !important;
+        height: 180px !important;
+        font-size: 72px !important;
+    }
+    .hero-name {
+        font-size: 32px !important;
+    }
+    .hero-title {
+        justify-content: center !important;
+    }
+    .hero-links {
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+    }
+    .footer-content {
+        flex-direction: column !important;
+        gap: 20px !important;
+        text-align: center !important;
+    }
+    .footer-left {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+}
 </style>
 {% endblock %}
 {% block body %}
 <div class="grid-bg"></div>
 <div class="container">
+    <!-- Hero 区域 - 版本A-Plus设计 -->
     <header class="hero">
-        <div class="hero-content">
-            {% if profile.avatar_url %}
-            <img src="{{ profile.avatar_url }}" alt="{{ profile.name }}" class="avatar">
-            {% endif %}
-            <h1 class="hero-name">{{ profile.name or "Your Name" }}</h1>
-            <p class="hero-title">{{ profile.title or "Software Engineer" }}</p>
-            <p class="hero-bio">{{ profile.bio or "" }}</p>
-            <div class="hero-links">
-                {% if profile.github_url %}
-                <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="social-link">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                    GitHub
-                </a>
-                {% endif %}
-                {% if profile.email %}
-                <a href="mailto:{{ profile.email }}" class="social-link">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                    Email
-                </a>
-                {% endif %}
-                {% if profile.location %}
-                <span class="social-link location">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                    {{ profile.location }}
-                </span>
-                {% endif %}
+        <div class="hero-card">
+            <div class="hero-inner">
+                <div class="hero-avatar-section">
+                    {% if profile.avatar_url %}
+                    <img src="{{ profile.avatar_url }}" alt="{{ profile.name }}" class="avatar"
+                         style="object-position: {{ profile.avatar_position.split(',')[0] if profile.avatar_position else '50' }}% {{ profile.avatar_position.split(',')[1] if profile.avatar_position else '50' }}%">
+                    {% else %}
+                    <div class="avatar">
+                        {{ (profile.name or "P")[0] }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="hero-info">
+                    <h1 class="hero-name">{{ profile.name or "Your Name" }}</h1>
+                    <p class="hero-title">{{ profile.title or "Software Engineer" }}</p>
+                    <p class="hero-bio">{{ profile.bio or "" }}</p>
+                    
+                    <!-- 链接按钮 -->
+                    <div class="hero-links">
+                        {% if profile.github_url %}
+                        <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="social-link">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                            GitHub
+                        </a>
+                        {% endif %}
+                        {% if profile.location %}
+                        <span class="social-link location">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                            {{ profile.location }}
+                        </span>
+                        {% endif %}
+                        {% if profile.email %}
+                        <span class="social-link email-btn" onclick="copyEmail('{{ profile.email }}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            {{ profile.email }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
+    <!-- 项目列表 -->
     <section class="projects-section">
-        <h2 class="section-title">项目列表</h2>
+        <div class="section-header">
+            <h2 class="section-title">项目列表 <span class="section-count">({{ visible_projects }})</span></h2>
+        </div>
         <div id="project-grid" class="project-grid"></div>
     </section>
 
+    <!-- 页脚 -->
     <footer class="footer">
-        {% if profile.github_url %}
-        <a href="{{ profile.github_url }}" target="_blank" rel="noopener">GitHub</a>
-        {% endif %}
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="footer-links">
+                    {% if profile.github_url %}
+                    <a href="{{ profile.github_url }}" target="_blank" rel="noopener">GitHub</a>
+                    {% endif %}
+                    {% if profile.email %}
+                    <a href="mailto:{{ profile.email }}">Email</a>
+                    {% endif %}
+                </div>
+                <span class="footer-divider"></span>
+                <span class="footer-copyright">© {{ 2026 }} {{ profile.name or "Portfolio" }}</span>
+            </div>
+            <div class="footer-right">
+                <div class="footer-tech">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    FastAPI + Vue3
+                </div>
+            </div>
+        </div>
     </footer>
 </div>
+
+<!-- 复制提示 -->
+<div class="email-copy-toast" id="emailToast">邮箱地址已复制到剪贴板</div>
 
 <script>
 const themeVars = {{ theme_vars | tojson }};
 const root = document.documentElement;
 for (const [key, val] of Object.entries(themeVars)) {
     root.style.setProperty(key, val);
+}
+
+// 复制邮箱到剪贴板
+function copyEmail(email) {
+    var ta = document.createElement('textarea');
+    ta.value = email;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+        document.execCommand('copy');
+        var toast = document.getElementById('emailToast');
+        toast.classList.add('show');
+        setTimeout(function(){ toast.classList.remove('show'); }, 2000);
+    } catch(e) {
+        alert('复制失败，请手动复制: ' + email);
+    }
+    document.body.removeChild(ta);
 }
 
 async function loadProjects() {
@@ -73,7 +433,7 @@ async function loadProjects() {
         card.style.animationDelay = `${i * 0.08}s`;
         card.onclick = () => {
             fetch(`/api/view/${p.slug}`, { method: 'POST' });
-            window.open(`/project/${p.slug}`, '_blank');
+            window.location.href = `/project/${p.slug}`;
         };
         let techHtml = '';
         if (p.show_tech && techs.length) {
@@ -82,7 +442,7 @@ async function loadProjects() {
         card.innerHTML = `
             <div class="card-header">
                 <h3 class="card-title">${p.name}</h3>
-                <span class="view-count">${p.view_count} 次访问</span>
+                <span class="view-count">${p.view_count} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
             </div>
             <p class="card-desc">${p.description || ''}</p>
             ${techHtml}

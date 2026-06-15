@@ -11,3 +11,11 @@ dist/
 build/
 .DS_Store
 *.log
+
+# Preview/demo files
+static/analytics-*.html
+static/stat-cards-*.html
+static/ui_v*.html
+
+# Uploads
+static/uploads/

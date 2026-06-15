@@ -1,43 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>项目管理 - 管理后台</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
+        :root {
+            {% for key, val in theme_vars.items() %}
+            {{ key }}: {{ val }};
+            {% endfor %}
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-        .admin-nav { background: #fff; border-bottom: 1px solid #e0ddd5; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 0 24px; display: flex; align-items: center; height: 56px; }
-        .admin-nav a { color: #666; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
-        .admin-nav a:hover, .admin-nav a.active { color: #1a1a1a; border-bottom-color: #4f6eff; }
+        body { background: var(--bg-primary, #f5f5f0); color: var(--text-primary, #1a1a1a); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; position: relative; }
+        .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(var(--border, #e8e5dd) 1px, transparent 1px), linear-gradient(90deg, var(--border, #e8e5dd) 1px, transparent 1px); background-size: 60px 60px; opacity: 0.3; pointer-events: none; z-index: 0; }
+        .admin-nav, .content { position: relative; z-index: 1; }
+        .admin-nav { background: var(--bg-card, #fff); border-bottom: 1px solid var(--border, #e0ddd5); box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 0 24px; display: flex; align-items: center; height: 56px; }
+        .admin-nav a { color: var(--text-secondary, #666); text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
+        .admin-nav a:hover, .admin-nav a.active { color: var(--text-primary, #1a1a1a); border-bottom-color: var(--accent, #4f6eff); }
         .admin-nav .spacer { flex: 1; }
-        .admin-nav .brand { color: #4f6eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
+        .admin-nav .brand { color: var(--accent, #4f6eff); font-weight: 700; font-size: 16px; margin-right: 24px; }
+        
+        /* 内容 */
         .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
-        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #666; border-bottom: 1px solid #e0ddd5; }
-        td { padding: 12px 16px; border-bottom: 1px solid #f5f3ee; font-size: 14px; }
-        .btn { display: inline-block; padding: 8px 16px; background: #4f6eff; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
-        .btn:hover { background: #3d5bd9; }
+        h1 { font-size: 28px; font-weight: 700; color: var(--text-primary, #1a1a1a); }
+        
+        /* 按钮 */
+        .btn { display: inline-flex; align-items: center; gap: 4px; padding: 8px 16px; background: var(--accent, #4f6eff); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .btn:hover { background: var(--accent-hover, #3d5bd9); }
+        .btn-ghost { background: transparent; color: var(--text-secondary, #666); border: 1px solid var(--border, #e0ddd5); }
+        .btn-ghost:hover { background: var(--bg-secondary, #f5f3ee); color: var(--text-primary, #1a1a1a); }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+        .btn-warning { background: #f59e0b; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
         .btn-danger:hover { background: #fecaca; }
-        .btn-sm { padding: 4px 10px; font-size: 12px; }
-        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-        .badge-visible { background: #ecfdf5; color: #10b981; }
-        .badge-hidden { background: #fee2e2; color: #dc2626; }
-        .actions { display: flex; gap: 8px; }
-        .inline-form { display: inline; }
+        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+        .toolbar-left { display: flex; align-items: center; gap: 12px; }
+        
+        /* 区域 */
+        .section { margin-bottom: 40px; }
+        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border, #e0ddd5); }
+        .section-title { font-size: 18px; font-weight: 700; color: var(--text-primary, #1a1a1a); }
+        .section-count { background: var(--bg-secondary, #f0efe8); color: var(--text-secondary, #666); padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+        .section-hint { font-size: 13px; color: var(--text-secondary, #999); margin-left: auto; }
+        
+        /* 卡片网格 */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .card-grid.sorting { background: var(--bg-secondary, #faf9f6); border-radius: 12px; padding: 16px; min-height: 100px; }
+        
+        /* 项目卡片 */
+        .project-card { background: var(--bg-card, #fff); border: 1px solid var(--border, #e0ddd5); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; }
+        .project-card:hover { box-shadow: var(--shadow, 0 4px 16px rgba(0,0,0,0.08)); transform: translateY(-2px); }
+        .project-card.dragging { opacity: 0.5; transform: rotate(2deg); }
+        .project-card.hidden-card { opacity: 0.7; }
+        
+        /* 卡片头部 */
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .card-title-group { flex: 1; }
+        .card-title { font-size: 16px; font-weight: 700; color: var(--text-primary, #1a1a1a); }
+        .card-slug { font-size: 12px; color: var(--text-secondary, #888); font-family: monospace; margin-top: 2px; }
+        
+        /* 状态指示 */
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .status-active .status-dot { background: #10b981; }
+        .status-active { color: #10b981; }
+        .status-hidden .status-dot { background: #9ca3af; }
+        .status-hidden { color: #9ca3af; }
+        
+        /* 更多菜单 */
+        .more-menu { position: relative; }
+        .more-btn { background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-secondary, #999); border-radius: 4px; transition: all 0.2s; }
+        .more-btn:hover { background: var(--bg-secondary, #f0efe8); color: var(--text-primary, #666); }
+        .more-btn svg { width: 16px; height: 16px; }
+        .more-dropdown { display: none; position: absolute; right: 0; top: 100%; background: var(--bg-card, #fff); border: 1px solid var(--border, #e0ddd5); border-radius: 8px; box-shadow: var(--shadow, 0 4px 16px rgba(0,0,0,0.1)); min-width: 140px; z-index: 100; overflow: hidden; }
+        .more-dropdown.show { display: block; }
+        .more-item { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 13px; color: var(--text-secondary, #666); cursor: pointer; transition: all 0.2s; }
+        .more-item:hover { background: var(--bg-secondary, #f5f3ee); color: var(--text-primary, #1a1a1a); }
+        .more-item.danger { color: #dc2626; }
+        .more-item.danger:hover { background: #fef2f2; }
+        .more-item svg { width: 14px; height: 14px; }
+        .more-divider { height: 1px; background: var(--border, #f0efe8); margin: 4px 0; }
+        
+        /* 卡片内容 */
+        .card-desc { font-size: 13px; color: var(--text-secondary, #666); line-height: 1.5; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-secondary, #888); margin-bottom: 8px; }
+        .card-category { font-size: 11px; background: var(--border, #e8e6e1); color: var(--text-secondary, #666); padding: 3px 10px; border-radius: 6px; font-weight: 500; }
+        .card-views { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary, #888); }
+        .card-views svg { width: 14px; height: 14px; opacity: 0.6; }
+        
+        /* 空状态 */
+        .empty-hint { text-align: center; padding: 40px; color: var(--text-secondary, #999); font-size: 14px; background: var(--bg-secondary, #faf9f6); border-radius: 12px; border: 1px dashed var(--border, #e0ddd5); }
+        
+        /* 拖拽手柄 */
+        .drag-handle { cursor: grab; color: #ccc; transition: color 0.2s; }
+        .drag-handle:hover { color: #999; }
+        .drag-handle:active { cursor: grabbing; }
+        
+        /* 保存提示 */
+        .save-bar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--text-primary, #1a1a1a); color: var(--bg-card, #fff); padding: 12px 24px; border-radius: 12px; display: none; align-items: center; gap: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); z-index: 1000; }
+        .save-bar.show { display: flex; }
+        .save-bar .btn { padding: 8px 20px; }
+        
+        /* 编辑弹窗 */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--bg-card, #fff); border-radius: 16px; width: 90%; max-width: 900px; max-height: 85vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 28px; border-bottom: 1px solid var(--border, #e0ddd5); }
+        .modal-title { font-size: 18px; font-weight: 700; color: var(--text-primary, #1a1a1a); }
+        .modal-close { background: none; border: none; cursor: pointer; color: var(--text-secondary, #999); padding: 4px; border-radius: 4px; }
+        .modal-close:hover { background: var(--bg-secondary, #f0efe8); color: var(--text-primary, #666); }
+        .modal-body { padding: 24px 28px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 28px; border-top: 1px solid var(--border, #e0ddd5); }
+        
+        /* 表单 */
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary, #666); margin-bottom: 6px; }
+        .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border, #e0ddd5); border-radius: 8px; font-size: 14px; transition: border-color 0.2s; background: var(--bg-secondary, #fafaf8); color: var(--text-primary, #1a1a1a); }
+        .form-input:focus { outline: none; border-color: var(--accent, #4f6eff); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .form-checkbox { display: flex; align-items: center; gap: 8px; }
+        .form-checkbox input { width: 16px; height: 16px; }
+        textarea.form-input { min-height: 80px; resize: vertical; }
     </style>
 </head>
 <body>
+    <div class="grid-bg"></div>
     <nav class="admin-nav">
         <span class="brand">管理后台</span>
         <a href="/admin">仪表盘</a>
         <a href="/admin/projects" class="active">项目管理</a>
-        <a href="/admin/profile">个人资料</a>
-        <a href="/admin/themes">主题设置</a>
         <a href="/admin/analytics">数据统计</a>
+        <a href="/admin/settings">站点设置</a>
         <span class="spacer"></span>
         <a href="/" target="_blank">查看前台</a>
         <a href="/admin/logout">退出登录</a>
@@ -45,31 +143,460 @@
     <div class="content">
         <div class="toolbar">
             <h1>项目管理</h1>
-            <a href="/admin/projects/new" class="btn">+ 新建项目</a>
+            <div class="toolbar-left">
+                <button class="btn btn-ghost" id="sortToggle" onclick="toggleSortMode()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+                    调整顺序
+                </button>
+                <a href="/admin/projects/new" class="btn" onclick="event.preventDefault(); openEditModal(null)">+ 新建项目</a>
+            </div>
         </div>
-        <table>
-            <thead>
-                <tr><th>名称</th><th>标识</th><th>分类</th><th>访问量</th><th>状态</th><th>排序</th><th>操作</th></tr>
-            </thead>
-            <tbody>
-                {% for p in projects %}
-                <tr>
-                    <td>{{ p.name }}</td>
-                    <td><code>{{ p.slug }}</code></td>
-                    <td>{{ p.category or "—" }}</td>
-                    <td>{{ p.view_count }}</td>
-                    <td><span class="badge {{ 'badge-visible' if p.is_visible else 'badge-hidden' }}">{{ '显示' if p.is_visible else '隐藏' }}</span></td>
-                    <td>{{ p.sort_order }}</td>
-                    <td class="actions">
-                        <a href="/admin/projects/{{ p.id }}/edit" class="btn btn-sm">编辑</a>
-                        <form class="inline-form" method="post" action="/admin/projects/{{ p.id }}/delete" onsubmit="return confirm('删除 this project?')">
-                            <button type="submit" class="btn btn-sm btn-danger">删除</button>
-                        </form>
-                    </td>
-                </tr>
+
+        <!-- 显示中的项目 -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">前台显示中</span>
+                <span class="section-count">{{ visible_projects|length }} 个</span>
+                <span class="section-hint" id="visibleHint">点击卡片编辑</span>
+            </div>
+            {% if visible_projects %}
+            <div class="card-grid" id="visibleGrid">
+                {% for p in visible_projects %}
+                <div class="project-card" data-id="{{ p.id }}" onclick="openEditModal({{ p.id }})">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-title">{{ p.name }}</div>
+                            <div class="card-slug">{{ p.slug }}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="status-badge status-active">
+                                <span class="status-dot"></span>
+                                展示中
+                            </span>
+                            <div class="more-menu">
+                                <button class="more-btn" onclick="event.stopPropagation(); toggleMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+                                </button>
+                                <div class="more-dropdown">
+                                    <div class="more-item" onclick="event.stopPropagation(); toggleVisible({{ p.id }}, 0)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                        隐藏
+                                    </div>
+                                    <div class="more-divider"></div>
+                                    <div class="more-item danger" onclick="event.stopPropagation(); deleteProject({{ p.id }}, '{{ p.name }}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                                        删除
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if p.description %}
+                    <div class="card-desc">{{ p.description }}</div>
+                    {% endif %}
+                    <div class="card-meta">
+                        {% if p.category %}
+                        <span class="card-category">{{ p.category }}</span>
+                        {% endif %}
+                        <span class="card-views">{{ p.view_count }} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                    </div>
+                </div>
                 {% endfor %}
-            </tbody>
-        </table>
+            </div>
+            {% else %}
+            <div class="empty-hint">暂无显示中的项目</div>
+            {% endif %}
+        </div>
+
+        <!-- 已隐藏的项目 -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">已隐藏</span>
+                <span class="section-count">{{ hidden_projects|length }} 个</span>
+                <span class="section-hint">前台不展示这些项目</span>
+            </div>
+            {% if hidden_projects %}
+            <div class="card-grid" id="hiddenGrid">
+                {% for p in hidden_projects %}
+                <div class="project-card hidden-card" data-id="{{ p.id }}" onclick="openEditModal({{ p.id }})">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-title">{{ p.name }}</div>
+                            <div class="card-slug">{{ p.slug }}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="status-badge status-hidden">
+                                <span class="status-dot"></span>
+                                已隐藏
+                            </span>
+                            <div class="more-menu">
+                                <button class="more-btn" onclick="event.stopPropagation(); toggleMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+                                </button>
+                                <div class="more-dropdown">
+                                    <div class="more-item" onclick="event.stopPropagation(); toggleVisible({{ p.id }}, 1)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        显示
+                                    </div>
+                                    <div class="more-divider"></div>
+                                    <div class="more-item danger" onclick="event.stopPropagation(); deleteProject({{ p.id }}, '{{ p.name }}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                                        删除
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if p.description %}
+                    <div class="card-desc">{{ p.description }}</div>
+                    {% endif %}
+                    <div class="card-meta">
+                        {% if p.category %}
+                        <span class="card-category">{{ p.category }}</span>
+                        {% endif %}
+                        <span class="card-views">{{ p.view_count }} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-hint">暂无隐藏项目</div>
+            {% endif %}
+        </div>
     </div>
+
+    <!-- 保存提示栏 -->
+    <div class="save-bar" id="saveBar">
+        <span>顺序已调整</span>
+        <button class="btn btn-success btn-sm" onclick="saveOrder()">保存</button>
+        <button class="btn btn-ghost btn-sm" onclick="cancelSort()">取消</button>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">编辑项目</span>
+                <button class="modal-close" onclick="closeEditModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" method="post" action="/admin/projects/save">
+                    <input type="hidden" name="pid" id="formPid" value="0">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">项目名称 *</label>
+                            <input type="text" name="name" id="formName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">项目标识 *</label>
+                            <input type="text" name="slug" id="formSlug" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">项目描述</label>
+                            <textarea name="description" id="formDesc" class="form-input" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">详细说明</label>
+                            <textarea name="detail" id="formDetail" class="form-input" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label class="form-label">分类</label>
+                            <input type="text" name="category" id="formCategory" class="form-input" placeholder="如：AI Agent、工具">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">技术栈</label>
+                            <input type="text" name="tech_stack" id="formTech" class="form-input" placeholder="逗号分隔">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">GitHub Pages</label>
+                            <input type="text" name="pages_url" id="formPages" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">GitHub 地址</label>
+                            <input type="text" name="github_url" id="formGithub" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">在线演示</label>
+                            <input type="text" name="web_url" id="formWeb" class="form-input">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 24px; padding-top: 8px; flex-wrap: wrap;">
+                        <label class="form-checkbox">
+                            <input type="checkbox" name="show_github" id="formShowGithub" value="1">
+                            <span>显示 GitHub</span>
+                        </label>
+                        <label class="form-checkbox">
+                            <input type="checkbox" name="show_web" id="formShowWeb" value="1">
+                            <span>显示演示</span>
+                        </label>
+                        <label class="form-checkbox">
+                            <input type="checkbox" name="show_pages" id="formShowPages" value="1">
+                            <span>显示 Pages</span>
+                        </label>
+                        <label class="form-checkbox">
+                            <input type="checkbox" name="show_tech" id="formShowTech" value="1">
+                            <span>显示技术栈</span>
+                        </label>
+                        <label class="form-checkbox">
+                            <input type="checkbox" name="is_visible" id="formVisible" value="1">
+                            <span>前台显示</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeEditModal()">取消</button>
+                <button class="btn" onclick="submitForm()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sortMode = false;
+        let sortableVisible = null;
+        let sortableHidden = null;
+        let originalOrders = {};
+
+        // 初始化拖拽（仅在排序模式下启用）
+        function initSortable() {
+            const visibleGrid = document.getElementById('visibleGrid');
+            
+            if (visibleGrid && !sortableVisible) {
+                sortableVisible = new Sortable(visibleGrid, {
+                    animation: 200,
+                    ghostClass: 'dragging',
+                    handle: '.project-card',
+                    group: 'visible',
+                    onEnd: () => { checkChanges(); }
+                });
+            }
+        }
+
+        // 销毁拖拽
+        function destroySortable() {
+            if (sortableVisible) {
+                sortableVisible.destroy();
+                sortableVisible = null;
+            }
+        }
+
+        // 记录原始顺序
+        function saveOriginalOrders() {
+            originalOrders = { visible: [], hidden: [] };
+            document.querySelectorAll('#visibleGrid .project-card').forEach(card => {
+                originalOrders.visible.push(parseInt(card.dataset.id));
+            });
+            document.querySelectorAll('#hiddenGrid .project-card').forEach(card => {
+                originalOrders.hidden.push(parseInt(card.dataset.id));
+            });
+        }
+
+        // 切换排序模式
+        function toggleSortMode() {
+            sortMode = !sortMode;
+            const btn = document.getElementById('sortToggle');
+            const saveBar = document.getElementById('saveBar');
+            const cards = document.querySelectorAll('.project-card');
+            
+            if (sortMode) {
+                btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> 退出调整';
+                btn.classList.add('btn-warning');
+                btn.classList.remove('btn-ghost');
+                saveOriginalOrders();
+                initSortable();
+                document.querySelectorAll('.card-grid').forEach(g => g.classList.add('sorting'));
+                cards.forEach(c => c.style.cursor = 'grab');
+                document.getElementById('visibleHint').textContent = '拖动卡片调整顺序';
+            } else {
+                btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg> 调整顺序';
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-ghost');
+                saveBar.classList.remove('show');
+                destroySortable();
+                document.querySelectorAll('.card-grid').forEach(g => g.classList.remove('sorting'));
+                cards.forEach(c => c.style.cursor = 'pointer');
+                document.getElementById('visibleHint').textContent = '点击卡片编辑';
+            }
+        }
+
+        // 检查是否有变化
+        function checkChanges() {
+            const currentVisible = [];
+            const currentHidden = [];
+            document.querySelectorAll('#visibleGrid .project-card').forEach(card => {
+                currentVisible.push(parseInt(card.dataset.id));
+            });
+            document.querySelectorAll('#hiddenGrid .project-card').forEach(card => {
+                currentHidden.push(parseInt(card.dataset.id));
+            });
+            
+            const changed = JSON.stringify(currentVisible) !== JSON.stringify(originalOrders.visible) ||
+                           JSON.stringify(currentHidden) !== JSON.stringify(originalOrders.hidden);
+            
+            document.getElementById('saveBar').classList.toggle('show', changed && sortMode);
+        }
+
+        // 保存顺序
+        async function saveOrder() {
+            const visibleIds = [];
+            const hiddenIds = [];
+            document.querySelectorAll('#visibleGrid .project-card').forEach(card => {
+                visibleIds.push(parseInt(card.dataset.id));
+            });
+            document.querySelectorAll('#hiddenGrid .project-card').forEach(card => {
+                hiddenIds.push(parseInt(card.dataset.id));
+            });
+            
+            const res = await fetch('/admin/projects/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ visible: visibleIds, hidden: hiddenIds })
+            });
+            
+            if (res.ok) {
+                toggleSortMode();
+                location.reload();
+            }
+        }
+
+        // 取消排序
+        function cancelSort() {
+            location.reload();
+        }
+
+        // 切换显示状态
+        async function toggleVisible(pid, newVisible) {
+            const res = await fetch(`/admin/projects/${pid}/toggle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_visible: newVisible })
+            });
+            if (res.ok) location.reload();
+        }
+
+        // 删除项目
+        async function deleteProject(pid, name) {
+            if (!confirm(`确定删除「${name}」？`)) return;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/projects/${pid}/delete`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // 菜单切换
+        function toggleMenu(btn) {
+            event.stopPropagation();
+            document.querySelectorAll('.more-dropdown.show').forEach(d => {
+                if (d !== btn.nextElementSibling) d.classList.remove('show');
+            });
+            btn.nextElementSibling.classList.toggle('show');
+        }
+
+        // 点击外部关闭菜单
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.more-dropdown.show').forEach(d => d.classList.remove('show'));
+        });
+
+        // 编辑弹窗
+        let projectData = {};
+        
+        async function openEditModal(pid) {
+            if (sortMode) return;
+            
+            const modal = document.getElementById('editModal');
+            const title = document.getElementById('modalTitle');
+            
+            if (pid) {
+                title.textContent = '编辑项目';
+                const res = await fetch(`/api/admin/projects/${pid}`);
+                if (res.ok) {
+                    projectData = await res.json();
+                    fillForm(projectData);
+                }
+            } else {
+                title.textContent = '新建项目';
+                projectData = {};
+                clearForm();
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        function fillForm(p) {
+            document.getElementById('formPid').value = p.id || 0;
+            document.getElementById('formName').value = p.name || '';
+            document.getElementById('formSlug').value = p.slug || '';
+            document.getElementById('formDesc').value = p.description || '';
+            document.getElementById('formDetail').value = p.detail || '';
+            document.getElementById('formCategory').value = p.category || '';
+            document.getElementById('formTech').value = p.tech_stack || '';
+            document.getElementById('formGithub').value = p.github_url || '';
+            document.getElementById('formWeb').value = p.web_url || '';
+            document.getElementById('formPages').value = p.pages_url || '';
+            document.getElementById('formShowGithub').checked = p.show_github;
+            document.getElementById('formShowWeb').checked = p.show_web;
+            document.getElementById('formShowPages').checked = p.show_pages;
+            document.getElementById('formShowTech').checked = p.show_tech;
+            document.getElementById('formVisible').checked = p.is_visible;
+        }
+
+        function clearForm() {
+            document.getElementById('formPid').value = 0;
+            document.getElementById('formName').value = '';
+            document.getElementById('formSlug').value = '';
+            document.getElementById('formDesc').value = '';
+            document.getElementById('formDetail').value = '';
+            document.getElementById('formCategory').value = '';
+            document.getElementById('formTech').value = '';
+            document.getElementById('formGithub').value = '';
+            document.getElementById('formWeb').value = '';
+            document.getElementById('formPages').value = '';
+            document.getElementById('formShowGithub').checked = true;
+            document.getElementById('formShowWeb').checked = true;
+            document.getElementById('formShowPages').checked = true;
+            document.getElementById('formShowTech').checked = true;
+            document.getElementById('formVisible').checked = true;
+        }
+
+        function submitForm() {
+            const form = document.getElementById('editForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            // 确保 checkbox 值正确
+            ['formShowGithub', 'formShowWeb', 'formShowPages', 'formShowTech', 'formVisible'].forEach(id => {
+                const el = document.getElementById(id);
+                el.value = el.checked ? 1 : 0;
+            });
+            
+            form.submit();
+        }
+
+        // 获取单个项目数据的 API
+        async function fetchProject(pid) {
+            const res = await fetch(`/api/admin/projects/${pid}`);
+            return res.ok ? await res.json() : null;
+        }
+
+        // 初始化（不自动启用拖拽）
+        document.addEventListener('DOMContentLoaded', () => {
+            // 页面加载时不初始化 Sortable，等用户点击"调整顺序"
+        });
+    </script>
 </body>
 </html>

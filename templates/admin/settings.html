@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>站点设置 - 管理后台</title>
+    <style>
+        :root {
+            {% for key, val in theme_vars.items() %}
+            {{ key }}: {{ val }};
+            {% endfor %}
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg-primary, #f5f5f0); color: var(--text-primary, #1a1a1a); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; position: relative; }
+        .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(var(--border, #e8e5dd) 1px, transparent 1px), linear-gradient(90deg, var(--border, #e8e5dd) 1px, transparent 1px); background-size: 60px 60px; opacity: 0.3; pointer-events: none; z-index: 0; }
+        .admin-nav, .content { position: relative; z-index: 1; }
+        .admin-nav { background: var(--bg-card, #fff); border-bottom: 1px solid var(--border, #e0ddd5); box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 0 24px; display: flex; align-items: center; height: 56px; }
+        .admin-nav a { color: var(--text-secondary, #666); text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .admin-nav a:hover { color: var(--text-primary, #1a1a1a); }
+        .admin-nav a.active { color: var(--text-primary, #1a1a1a); border-bottom-color: var(--accent, #4f6eff); }
+        .admin-nav .spacer { flex: 1; }
+        .admin-nav .brand { color: var(--accent, #4f6eff); font-weight: 700; font-size: 16px; margin-right: 24px; }
+
+        .content { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; color: var(--text-primary, #1a1a1a); }
+
+        /* 选项卡 */
+        .tabs { display: flex; gap: 4px; margin-bottom: 32px; background: var(--bg-card, #fff); border: 1px solid var(--border, #e0ddd5); border-radius: 10px; padding: 4px; width: fit-content; }
+        .tab { padding: 10px 20px; border: none; background: transparent; color: var(--text-secondary, #666); font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
+        .tab:hover { color: var(--text-primary, #1a1a1a); background: var(--bg-secondary, #f5f3ee); }
+        .tab.active { background: var(--accent, #4f6eff); color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* 前台预览卡片 */
+        .profile-preview-card {
+            background: var(--bg-card, #fff);
+            border: 1px solid var(--border, #e0ddd5);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .preview-avatar-wrapper {
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .preview-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--accent, #4f6eff), #7c9fff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .preview-avatar:hover .avatar-overlay {
+            opacity: 1;
+        }
+        .preview-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .preview-avatar-placeholder {
+            color: white;
+            font-size: 40px;
+            font-weight: 700;
+        }
+        .avatar-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .avatar-overlay svg {
+            width: 28px;
+            height: 28px;
+            color: white;
+        }
+        .preview-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .preview-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary, #1a1a1a);
+            margin-bottom: 4px;
+        }
+        .preview-title {
+            font-size: 14px;
+            color: var(--accent, #4f6eff);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .preview-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 16px;
+            background: var(--accent, #4f6eff);
+            border-radius: 2px;
+        }
+        .preview-bio {
+            font-size: 13px;
+            color: var(--text-secondary, #666);
+            line-height: 1.6;
+            margin-bottom: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 500px;
+        }
+        .preview-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .preview-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary, #666);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border: 1px solid var(--border, #e0ddd5);
+            border-radius: 8px;
+            background: var(--bg-secondary, #fafaf8);
+            text-decoration: none;
+        }
+        .preview-link svg {
+            width: 14px;
+            height: 14px;
+        }
+        .preview-hint {
+            font-size: 11px;
+            color: var(--accent, #4f6eff);
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        /* 个人资料表单 */
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 12px; color: var(--text-secondary, #888); margin-bottom: 6px; font-weight: 500; letter-spacing: 0.3px; }
+        .form-input { width: 100%; padding: 10px 14px; background: var(--bg-secondary, #fafaf8); border: 1px solid var(--border, #e8e6e1); border-radius: 10px; color: var(--text-primary, #1a1a1a); font-size: 14px; font-family: inherit; outline: none; transition: all 0.2s; }
+        .form-input:focus { border-color: var(--accent, #4f6eff); background: var(--bg-card, #fff); box-shadow: 0 0 0 3px rgba(79,110,255,0.08); }
+        textarea.form-input { min-height: 80px; resize: vertical; line-height: 1.6; }
+        .form-row { display: grid; gap: 16px; margin-bottom: 0; }
+        .form-row-2 { grid-template-columns: 1fr 1fr; }
+        .form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .form-section { margin-bottom: 24px; }
+        .form-section-title { font-size: 13px; font-weight: 600; color: var(--text-primary, #1a1a1a); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border, #e8e6e1); }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 24px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: var(--accent, #4f6eff); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover, #3d5bd9); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,110,255,0.3); }
+        .btn-ghost { background: transparent; border: 1px solid var(--border, #d0cdc5); color: var(--text-secondary, #666); }
+        .btn-ghost:hover { border-color: var(--accent, #4f6eff); color: var(--accent, #4f6eff); }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-success { background: #10b981; color: #fff; }
+        .btn-success:hover { background: #059669; }
+
+        /* 主题卡片 */
+        .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .theme-card { background: var(--bg-card, #fff); border: 2px solid var(--border, #e0ddd5); border-radius: 14px; overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
+        .theme-card:hover { border-color: var(--text-secondary, #c0bdb5); box-shadow: var(--shadow, 0 4px 16px rgba(0,0,0,0.06)); }
+        .theme-card.active { border-color: var(--accent, #4f6eff); box-shadow: 0 0 0 3px rgba(79,110,255,0.12); }
+
+        .theme-preview { height: 100px; display: flex; position: relative; }
+        .preview-bg { flex: 1; }
+        .preview-sidebar { width: 60px; display: flex; flex-direction: column; }
+        .preview-sidebar > div { flex: 1; }
+        .preview-card { position: absolute; bottom: 12px; left: 12px; right: 72px; height: 36px; border-radius: 6px; }
+
+        .theme-info { padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .theme-name { font-size: 15px; font-weight: 600; color: var(--text-primary, #1a1a1a); }
+        .theme-desc { font-size: 12px; color: var(--text-secondary, #999); margin-top: 2px; }
+        .theme-actions { display: flex; gap: 8px; }
+        .active-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #ecfdf5; color: #10b981; }
+
+        /* 头像弹窗 */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--bg-card, #fff); border-radius: 16px; width: 520px; max-height: 80vh; overflow-y: auto; box-shadow: 0 24px 48px rgba(0,0,0,0.15); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border, #e0ddd5); display: flex; align-items: center; justify-content: space-between; }
+        .modal-title { font-size: 16px; font-weight: 700; color: var(--text-primary, #1a1a1a); }
+        .modal-close { background: none; border: none; font-size: 20px; color: var(--text-secondary, #999); cursor: pointer; padding: 4px; }
+        .modal-close:hover { color: var(--text-primary, #1a1a1a); }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border, #e0ddd5); display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* 头像弹窗内容 */
+        .avatar-modal-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--border, #e0ddd5);
+            background: var(--bg-secondary, #fafaf8);
+            margin: 0 auto 24px;
+        }
+        .avatar-modal-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-upload-area {
+            border: 2px dashed var(--border, #d0cdc5);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 24px;
+        }
+        .avatar-upload-area:hover {
+            border-color: var(--accent, #4f6eff);
+            background: rgba(79,110,255,0.02);
+        }
+        .avatar-upload-area svg {
+            width: 40px;
+            height: 40px;
+            color: var(--text-secondary, #999);
+            margin-bottom: 12px;
+        }
+        .avatar-upload-area p {
+            font-size: 14px;
+            color: var(--text-secondary, #666);
+        }
+        .avatar-upload-area .upload-hint {
+            font-size: 12px;
+            color: var(--text-secondary, #999);
+            margin-top: 4px;
+        }
+        #avatarFileInput {
+            display: none;
+        }
+        /* 上传中状态 */
+        .uploading { opacity: 0.6; pointer-events: none; }
+
+        /* 历史头像 */
+        .avatar-history-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary, #666);
+            margin-bottom: 12px;
+        }
+        .avatar-history-grid {
+            display: flex;
+            gap: 12px;
+        }
+        .avatar-history-item {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--border, #e0ddd5);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .avatar-history-item:hover {
+            border-color: var(--accent, #4f6eff);
+            transform: scale(1.05);
+        }
+        .avatar-history-item.active {
+            border-color: var(--accent, #4f6eff);
+            box-shadow: 0 0 0 3px rgba(79,110,255,0.2);
+        }
+        .avatar-history-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 保存提示 */
+        .save-indicator { position: fixed; top: 20px; right: 20px; background: #10b981; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(16,185,129,0.3); z-index: 200; animation: slideIn 0.3s ease; }
+        .save-indicator.show { display: flex; }
+        @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* 上传中状态 */
+        .uploading { opacity: 0.6; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <nav class="admin-nav">
+        <span class="brand">管理后台</span>
+        <a href="/admin">仪表盘</a>
+        <a href="/admin/projects">项目管理</a>
+        <a href="/admin/analytics">数据统计</a>
+        <a href="/admin/settings" class="active">站点设置</a>
+        <span class="spacer"></span>
+        <a href="/" target="_blank">查看前台</a>
+        <a href="/admin/logout">退出登录</a>
+    </nav>
+    <div class="content">
+        <h1>站点设置</h1>
+
+        <!-- 前台预览卡片 -->
+        <div class="profile-preview-card">
+            <div class="preview-avatar-wrapper" onclick="openAvatarModal()">
+                <div class="preview-avatar" id="avatarHeroPreview">
+                    {% if profile.get('avatar_url') %}
+                    <img src="{{ profile.get('avatar_url') }}" alt="头像" id="avatarHeroImg">
+                    {% else %}
+                    <span class="preview-avatar-placeholder">{{ (profile.get('name', 'U'))[:1] }}</span>
+                    {% endif %}
+                    <div class="avatar-overlay">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </div>
+                </div>
+                <div class="preview-hint">点击头像更换</div>
+            </div>
+            <div class="preview-info">
+                <div class="preview-name">{{ profile.get('name', '未设置姓名') }}</div>
+                <div class="preview-title">{{ profile.get('title', '') }}</div>
+                {% if profile.get('bio') %}
+                <div class="preview-bio">{{ profile.get('bio') }}</div>
+                {% endif %}
+                <div class="preview-links">
+                    {% if profile.get('github_url') %}
+                    <span class="preview-link">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </span>
+                    {% endif %}
+                    {% if profile.get('location') %}
+                    <span class="preview-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        {{ profile.get('location') }}
+                    </span>
+                    {% endif %}
+                    {% if profile.get('email') %}
+                    <span class="preview-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        {{ profile.get('email') }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('profile')">个人资料</button>
+            <button class="tab" onclick="switchTab('theme')">主题设置</button>
+        </div>
+
+        <!-- 个人资料 -->
+        <div class="tab-content active" id="tab-profile">
+            <form method="post" action="/admin/profile/save" id="profileForm">
+                <!-- 基本信息 -->
+                <div class="form-section">
+                    <div class="form-section-title">基本信息</div>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">姓名</label>
+                            <input type="text" name="name" class="form-input" value="{{ profile.get('name', '') }}" placeholder="你的名字">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">职位</label>
+                            <input type="text" name="title" class="form-input" value="{{ profile.get('title', '') }}" placeholder="你的职位">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">简介</label>
+                        <textarea name="bio" class="form-input" placeholder="一句话介绍自己...">{{ profile.get('bio', '') }}</textarea>
+                    </div>
+                </div>
+
+                <!-- 联系方式 -->
+                <div class="form-section">
+                    <div class="form-section-title">联系方式</div>
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label class="form-label">GitHub 地址</label>
+                            <input type="text" name="github_url" class="form-input" value="{{ profile.get('github_url', '') }}" placeholder="https://github.com/username">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">邮箱</label>
+                            <input type="text" name="email" class="form-input" value="{{ profile.get('email', '') }}" placeholder="hello@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">所在地</label>
+                            <input type="text" name="location" class="form-input" value="{{ profile.get('location', '') }}" placeholder="城市, 国家">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">保存资料</button>
+            </form>
+        </div>
+
+        <!-- 主题设置 -->
+        <div class="tab-content" id="tab-theme">
+            <div class="theme-grid">
+                {% for t in themes %}
+                <div class="theme-card {{ 'active' if t.is_active }}" onclick="activateTheme({{ t.id }})">
+                    <div class="theme-preview" style="background: {{ (t.css_vars_parsed.get('--bg-primary', '#f5f5f0') if t.css_vars_parsed else '#f5f5f0') }}">
+                        <div class="preview-bg" style="background: {{ (t.css_vars_parsed.get('--bg-primary', '#f5f5f0') if t.css_vars_parsed else '#f5f5f0') }}"></div>
+                        <div class="preview-sidebar">
+                            <div style="background: {{ (t.css_vars_parsed.get('--bg-secondary', '#fff') if t.css_vars_parsed else '#fff') }}; opacity:0.6;"></div>
+                            <div style="background: {{ (t.css_vars_parsed.get('--accent', '#4f6eff') if t.css_vars_parsed else '#4f6eff') }}; opacity:0.4;"></div>
+                        </div>
+                        <div class="preview-card" style="background: {{ (t.css_vars_parsed.get('--bg-card', '#fff') if t.css_vars_parsed else '#fff') }}; border: 1px solid {{ (t.css_vars_parsed.get('--border', '#e0ddd5') if t.css_vars_parsed else '#e0ddd5') }};"></div>
+                    </div>
+                    <div class="theme-info">
+                        <div>
+                            <div class="theme-name">
+                                {{ t.name }}
+                                {% if t.is_active %}<span class="active-badge">当前</span>{% endif %}
+                            </div>
+                            <div class="theme-desc">{{ t.desc or '' }}</div>
+                        </div>
+                        <div class="theme-actions">
+                            {% if t.is_custom %}
+                            <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation(); editCustom({{ t.id }}, '{{ t.name }}', {{ t.css_vars }})">编辑</button>
+                            <form style="display:inline" method="post" action="/admin/themes/{{ t.id }}/delete" onsubmit="return confirm('确认删除此主题？')">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="event.stopPropagation();">删除</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="margin-top: 24px;">
+                <button class="btn btn-ghost" onclick="openCustomModal()">+ 自定义主题</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 保存成功提示 -->
+    <div class="save-indicator" id="saveIndicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        保存成功
+    </div>
+
+    <!-- 头像弹窗 -->
+    <div class="modal-overlay" id="avatarModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">更换头像</span>
+                <button class="modal-close" onclick="closeAvatarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 当前头像预览 -->
+                <div class="avatar-modal-preview" id="avatarModalPreview">
+                    {% if profile.get('avatar_url') %}
+                    <img src="{{ profile.get('avatar_url') }}" alt="当前头像" id="avatarModalImg">
+                    {% else %}
+                    <div class="avatar-placeholder-lg">{{ (profile.get('name', 'U'))[:1] }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- 上传区域 -->
+                <div class="avatar-upload-area" onclick="document.getElementById('avatarFileInput').click()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <p>点击上传新头像</p>
+                    <p class="upload-hint">支持 JPG、PNG、GIF 格式</p>
+                </div>
+                <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(this)">
+
+                <!-- 位置调整 -->
+
+                <!-- 历史头像 -->
+                <div class="avatar-history-title">最近使用</div>
+                <div class="avatar-history-grid" id="avatarHistoryGrid">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义主题弹窗 -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">新建自定义主题</span>
+                <button class="modal-close" onclick="closeCustomModal()">&times;</button>
+            </div>
+            <form method="post" action="/admin/themes/save">
+                <div class="modal-body">
+                    <input type="hidden" name="tid" id="tid" value="0">
+                    <input type="hidden" name="is_custom" value="1">
+                    <div class="form-group">
+                        <label class="form-label">主题名称</label>
+                        <input type="text" name="name" id="themeName" class="form-input" placeholder="例如：我的暗色主题" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CSS 变量</label>
+                        <textarea name="css_vars" id="themeCss" class="form-input">{
+    "--bg-primary": "#f5f5f0",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "#ffffff",
+    "--text-primary": "#1a1a1a",
+    "--text-secondary": "#666666",
+    "--accent": "#4f6eff",
+    "--accent-hover": "#3d5bd9",
+    "--border": "#e0ddd5",
+    "--shadow": "0 2px 12px rgba(0,0,0,0.06)"
+}</textarea>
+                        <div class="form-hint">填写 JSON 格式的 CSS 变量，修改颜色值即可自定义主题外观</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" onclick="closeCustomModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存主题</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    // 切换选项卡
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => {
+            if ((tabName === 'profile' && t.textContent.includes('个人资料')) ||
+                (tabName === 'theme' && t.textContent.includes('主题'))) {
+                t.classList.add('active');
+            }
+        });
+        document.getElementById('tab-' + tabName).classList.add('active');
+    }
+
+    // === 头像弹窗 ===
+    let currentAvatarUrl = '{{ profile.get("avatar_url", "") }}';
+
+    function openAvatarModal() {
+        document.getElementById('avatarModal').classList.add('show');
+        loadAvatarHistory();
+    }
+
+    function closeAvatarModal() {
+        document.getElementById('avatarModal').classList.remove('show');
+    }
+
+    // 加载历史头像
+    async function loadAvatarHistory() {
+        try {
+            const resp = await fetch('/api/admin/avatars');
+            const avatars = await resp.json();
+            const grid = document.getElementById('avatarHistoryGrid');
+            grid.innerHTML = '';
+            
+            if (avatars.length === 0) {
+                grid.innerHTML = '<p style="font-size:12px;color:var(--text-secondary,#999);">暂无历史头像</p>';
+                return;
+            }
+            
+            avatars.forEach(a => {
+                const item = document.createElement('div');
+                item.className = 'avatar-history-item' + (a.avatar_url === currentAvatarUrl ? ' active' : '');
+                item.innerHTML = `<img src="${a.avatar_url}" alt="历史头像">`;
+                item.onclick = () => selectHistoryAvatar(a.avatar_url);
+                grid.appendChild(item);
+            });
+        } catch(e) {
+            console.error('加载历史头像失败:', e);
+        }
+    }
+
+    // 选择历史头像
+    async function selectHistoryAvatar(url) {
+        currentAvatarUrl = url;
+        updateAvatarPreviews(url);
+        
+        // 更新历史头像选中状态
+        document.querySelectorAll('.avatar-history-item').forEach(item => {
+            const img = item.querySelector('img');
+            item.classList.toggle('active', img && img.src === url);
+        });
+    }
+
+    // 处理上传
+    async function handleAvatarUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        
+        const file = input.files[0];
+        
+        const formData = new FormData();
+        formData.append('avatar_file', file);
+        
+        const uploadArea = document.querySelector('.avatar-upload-area');
+        uploadArea.classList.add('uploading');
+        uploadArea.innerHTML = '<p>上传中...</p>';
+        
+        try {
+            const resp = await fetch('/admin/avatar/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await resp.json();
+            
+            if (data.ok) {
+                currentAvatarUrl = data.avatar_url;
+                updateAvatarPreviews(data.avatar_url);
+                loadAvatarHistory();
+                showSaveIndicator();
+            } else {
+                alert(data.error || '上传失败');
+            }
+        } catch(e) {
+            alert('上传失败: ' + e.message);
+        } finally {
+            uploadArea.classList.remove('uploading');
+            uploadArea.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p>点击上传新头像</p>
+                <p class="upload-hint">支持 JPG、PNG、GIF 格式</p>
+            `;
+            input.value = '';
+        }
+    }
+
+    // 更新所有头像预览
+    function updateAvatarPreviews(url) {
+        // 弹窗预览
+        const modalPreview = document.getElementById('avatarModalPreview');
+        modalPreview.innerHTML = `<img src="${url}" alt="头像" id="avatarModalImg">`;
+        
+        // 顶部头像
+        const heroPreview = document.getElementById('avatarHeroPreview');
+        heroPreview.innerHTML = `<img src="${url}" alt="头像" id="avatarHeroImg">`;
+    }
+
+    // 点击弹窗外部关闭
+    document.getElementById('avatarModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAvatarModal();
+    });
+
+    // === 主题功能 ===
+    async function activateTheme(tid) {
+        try {
+            const resp = await fetch('/admin/themes/activate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'tid=' + tid
+            });
+            const data = await resp.json();
+            if (data.ok) {
+                if (data.css_vars) {
+                    const root = document.documentElement;
+                    Object.entries(data.css_vars).forEach(([key, val]) => {
+                        root.style.setProperty(key, val);
+                    });
+                }
+                document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+                const cards = document.querySelectorAll('.theme-card');
+                cards.forEach(card => {
+                    const onclickAttr = card.getAttribute('onclick');
+                    if (onclickAttr && onclickAttr.includes(tid + ')')) {
+                        card.classList.add('active');
+                    }
+                });
+                document.querySelectorAll('.active-badge').forEach(b => b.remove());
+                cards.forEach(card => {
+                    if (card.classList.contains('active')) {
+                        const nameEl = card.querySelector('.theme-name');
+                        if (nameEl && !nameEl.querySelector('.active-badge')) {
+                            const badge = document.createElement('span');
+                            badge.className = 'active-badge';
+                            badge.textContent = '当前';
+                            nameEl.appendChild(badge);
+                        }
+                    }
+                });
+                showSaveIndicator();
+            }
+        } catch(e) {
+            console.error('激活主题失败:', e);
+        }
+    }
+
+    // 自定义主题弹窗
+    function openCustomModal() {
+        document.getElementById('tid').value = '0';
+        document.getElementById('themeName').value = '';
+        document.getElementById('themeCss').value = JSON.stringify({
+            "--bg-primary": "#f5f5f0", "--bg-secondary": "#ffffff", "--bg-card": "#ffffff",
+            "--text-primary": "#1a1a1a", "--text-secondary": "#666666",
+            "--accent": "#4f6eff", "--accent-hover": "#3d5bd9",
+            "--border": "#e0ddd5", "--shadow": "0 2px 12px rgba(0,0,0,0.06)"
+        }, null, 4);
+        document.getElementById('modalTitle').textContent = '新建自定义主题';
+        document.getElementById('customModal').classList.add('show');
+    }
+
+    function editCustom(tid, name, cssVars) {
+        document.getElementById('tid').value = tid;
+        document.getElementById('themeName').value = name;
+        document.getElementById('themeCss').value = typeof cssVars === 'string' ? cssVars : JSON.stringify(cssVars, null, 4);
+        document.getElementById('modalTitle').textContent = '编辑自定义主题';
+        document.getElementById('customModal').classList.add('show');
+    }
+
+    function closeCustomModal() {
+        document.getElementById('customModal').classList.remove('show');
+    }
+
+    document.getElementById('customModal').addEventListener('click', function(e) {
+        if (e.target === this) closeCustomModal();
+    });
+
+    // 保存成功提示
+    function showSaveIndicator() {
+        const indicator = document.getElementById('saveIndicator');
+        indicator.classList.add('show');
+        setTimeout(() => indicator.classList.remove('show'), 2000);
+    }
+
+    if (new URLSearchParams(window.location.search).get('saved') === '1') {
+        showSaveIndicator();
+    }
+
+    if (window.location.hash === '#theme') {
+        switchTab('theme');
+    }
+    </script>
+</body>
+</html>
