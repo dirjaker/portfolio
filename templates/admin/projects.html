@@ -157,12 +157,12 @@
             <div class="section-header">
                 <span class="section-title">前台显示中</span>
                 <span class="section-count">{{ visible_projects|length }} 个</span>
-                <span class="section-hint" id="visibleHint">点击卡片编辑</span>
+                <span class="section-hint" id="visibleHint">点击卡片预览 · 编辑按钮在前台页面</span>
             </div>
             {% if visible_projects %}
             <div class="card-grid" id="visibleGrid">
                 {% for p in visible_projects %}
-                <div class="project-card" data-id="{{ p.id }}" onclick="openEditModal({{ p.id }})">
+                <div class="project-card" data-id="{{ p.id }}" onclick="window.location.href='/project/{{ p.slug }}'">
                     <div class="card-header">
                         <div class="card-title-group">
                             <div class="card-title">{{ p.name }}</div>
@@ -178,6 +178,10 @@
                                     <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
                                 </button>
                                 <div class="more-dropdown">
+                                    <div class="more-item" onclick="event.stopPropagation(); openEditModal({{ p.id }})">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        编辑
+                                    </div>
                                     <div class="more-item" onclick="event.stopPropagation(); toggleVisible({{ p.id }}, 0)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                                         隐藏
@@ -218,7 +222,7 @@
             {% if hidden_projects %}
             <div class="card-grid" id="hiddenGrid">
                 {% for p in hidden_projects %}
-                <div class="project-card hidden-card" data-id="{{ p.id }}" onclick="openEditModal({{ p.id }})">
+                <div class="project-card hidden-card" data-id="{{ p.id }}" onclick="window.location.href='/project/{{ p.slug }}'">
                     <div class="card-header">
                         <div class="card-title-group">
                             <div class="card-title">{{ p.name }}</div>
@@ -234,6 +238,10 @@
                                     <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
                                 </button>
                                 <div class="more-dropdown">
+                                    <div class="more-item" onclick="event.stopPropagation(); openEditModal({{ p.id }})">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        编辑
+                                    </div>
                                     <div class="more-item" onclick="event.stopPropagation(); toggleVisible({{ p.id }}, 1)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                         显示

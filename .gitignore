@@ -16,6 +16,7 @@ build/
 static/analytics-*.html
 static/stat-cards-*.html
 static/ui_v*.html
+static/designs/
 
 # Uploads
 static/uploads/

@@ -195,6 +195,14 @@ def init_db():
         cursor.execute("ALTER TABLE profile ADD COLUMN avatar_position TEXT DEFAULT '50,50'")
     except:
         pass
+    try:
+        cursor.execute("ALTER TABLE project ADD COLUMN content_mode TEXT DEFAULT 'preset'")
+    except:
+        pass
+    try:
+        cursor.execute("ALTER TABLE project ADD COLUMN detail_preset TEXT DEFAULT '{}'")
+    except:
+        pass
 
     # Seed admin user
     existing = cursor.execute("SELECT id FROM admin_user WHERE username = ?", (ADMIN_USERNAME,)).fetchone()

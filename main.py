@@ -1,6 +1,9 @@
 import json
+import re
 import shutil
 import psutil
+import markdown as md_lib
+import bleach
 from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, Query, UploadFile, File
@@ -11,6 +14,64 @@ from passlib.hash import pbkdf2_sha256
 from database import get_db, init_db
 from auth import create_session_token, get_current_user, require_admin
 from config import HOST, PORT
+
+# 允许的 HTML 标签和属性（用于 Markdown 渲染安全过滤）
+ALLOWED_TAGS = [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr',
+    'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+    'strong', 'em', 'b', 'i', 'u', 's', 'del', 'ins', 'mark',
+    'a', 'img', 'code', 'pre', 'blockquote',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'span', 'div', 'figure', 'figcaption',
+]
+ALLOWED_ATTRS = {
+    'a': ['href', 'title', 'target', 'rel', 'class'],
+    'img': ['src', 'alt', 'title', 'width', 'height', 'class'],
+    '*': ['class', 'id', 'style'],
+}
+
+def render_markdown(text: str) -> str:
+    """将 Markdown 渲染为安全 HTML"""
+    if not text:
+        return ''
+    html = md_lib.markdown(text, extensions=['fenced_code', 'tables', 'codehilite'])
+    safe_html = bleach.clean(html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True)
+    return safe_html
+
+def build_preset_html(preset: dict) -> str:
+    """将 Preset 模式的结构化字段拼成 HTML"""
+    if not preset:
+        return ''
+    parts = []
+    
+    overview = preset.get('overview', '').strip()
+    if overview:
+        parts.append(f'<div class="preset-section"><h2>概述</h2><div class="preset-overview">{render_markdown(overview)}</div></div>')
+    
+    features = preset.get('features', [])
+    if features and isinstance(features, list):
+        items = ''.join(f'<li class="feature-item">{render_markdown(f.strip())}</li>' for f in features if f.strip())
+        if items:
+            parts.append(f'<div class="preset-section"><h2>功能特性</h2><ul class="feature-list">{items}</ul></div>')
+    
+    screenshots = preset.get('screenshots', [])
+    if screenshots and isinstance(screenshots, list):
+        imgs = ''.join(
+            f'<figure class="screenshot-item">'
+            f'<img src="{bleach.clean(s.get("url", ""), tags=[], attributes={}, strip=True)}" '
+            f'alt="{bleach.clean(s.get("caption", ""), tags=[], attributes={}, strip=True)}" loading="lazy">'
+            f'{"<figcaption>" + bleach.clean(s["caption"], tags=[], attributes={}, strip=True) + "</figcaption>" if s.get("caption") else ""}'
+            f'</figure>'
+            for s in screenshots if s.get('url')
+        )
+        if imgs:
+            parts.append(f'<div class="preset-section"><h2>截图预览</h2><div class="screenshot-gallery">{imgs}</div></div>')
+    
+    architecture = preset.get('architecture', '').strip()
+    if architecture:
+        parts.append(f'<div class="preset-section"><h2>架构说明</h2><div class="preset-architecture">{render_markdown(architecture)}</div></div>')
+    
+    return '\n'.join(parts)
 
 app = FastAPI(title="Portfolio")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -115,7 +176,35 @@ def project_detail(request: Request, slug: str):
     if not p:
         raise HTTPException(404)
     theme_vars = json.loads(theme["css_vars"]) if theme else {}
-    return templates.TemplateResponse(request, "project_detail.html", {"project": dict(p), "theme_vars": theme_vars})
+    project = dict(p)
+    
+    # 根据模式构建详情 HTML
+    content_mode = project.get('content_mode', 'preset')
+    if content_mode == 'preset':
+        try:
+            preset = json.loads(project.get('detail_preset') or '{}')
+        except (json.JSONDecodeError, TypeError):
+            preset = {}
+        project['detail_html'] = build_preset_html(preset)
+        project['detail_mode'] = 'preset'
+    else:
+        project['detail_html'] = render_markdown(project.get('detail') or '')
+        project['detail_mode'] = 'advanced'
+    
+    # 检查是否为管理员（用于显示编辑按钮）
+    is_admin = get_current_user(request) is not None
+    
+    # 解析 detail_preset 供 modal 编辑用
+    try:
+        detail_preset = json.loads(project.get('detail_preset') or '{}')
+    except (json.JSONDecodeError, TypeError):
+        detail_preset = {}
+    
+    return templates.TemplateResponse(request, "project_detail.html", {
+        "project": project, "theme_vars": theme_vars,
+        "is_admin": is_admin,
+        "detail_preset": detail_preset
+    })
 
 # --- Auth ---
 @app.get("/admin/login", response_class=HTMLResponse)
@@ -133,7 +222,7 @@ def admin_login(request: Request, username: str = Form(...), password: str = For
         return templates.TemplateResponse(request, "admin/login.html", {"error": "用户名或密码错误", "theme_vars": theme_vars})
     token = create_session_token(username)
     response = RedirectResponse("/admin", status_code=303)
-    response.set_cookie("session", token, httponly=True, max_age=86400)
+    response.set_cookie("session", token, httponly=True, max_age=86400, samesite="lax")
     return response
 
 @app.get("/admin/logout")
@@ -254,7 +343,10 @@ def admin_projects(request: Request):
 def admin_project_new(request: Request):
     require_admin(request)
     theme_vars = get_theme_vars()
-    return templates.TemplateResponse(request, "admin/project_edit.html", {"project": None, "error": None, "theme_vars": theme_vars})
+    return templates.TemplateResponse(request, "admin/project_edit.html", {
+        "project": None, "error": None, "theme_vars": theme_vars,
+        "detail_preset": {}
+    })
 
 @app.get("/admin/projects/{pid}/edit", response_class=HTMLResponse)
 def admin_project_edit(request: Request, pid: int):
@@ -264,32 +356,81 @@ def admin_project_edit(request: Request, pid: int):
     db.close()
     if not p:
         raise HTTPException(404)
+    project = dict(p)
     theme_vars = get_theme_vars()
-    return templates.TemplateResponse(request, "admin/project_edit.html", {"project": dict(p), "error": None, "theme_vars": theme_vars})
+    # 解析 detail_preset JSON
+    try:
+        detail_preset = json.loads(project.get('detail_preset') or '{}')
+    except (json.JSONDecodeError, TypeError):
+        detail_preset = {}
+    return templates.TemplateResponse(request, "admin/project_edit.html", {
+        "project": project, "error": None, "theme_vars": theme_vars,
+        "detail_preset": detail_preset
+    })
 
 @app.post("/admin/projects/save")
-def admin_project_save(request: Request, pid: int = Form(0), name: str = Form(...), slug: str = Form(...),
-                        description: str = Form(""), detail: str = Form(""), tech_stack: str = Form(""),
-                        category: str = Form(""), github_url: str = Form(""), web_url: str = Form(""),
-                        pages_url: str = Form(""), show_github: int = Form(0), show_web: int = Form(0),
-                        show_pages: int = Form(0), show_tech: int = Form(0), show_detail: int = Form(0),
-                        is_visible: int = Form(0), sort_order: int = Form(0)):
+def admin_project_save(
+    request: Request,
+    pid: int = Form(0), name: str = Form(...), slug: str = Form(...),
+    description: str = Form(""), detail: str = Form(""), tech_stack: str = Form(""),
+    category: str = Form(""), github_url: str = Form(""), web_url: str = Form(""),
+    pages_url: str = Form(""), show_github: int = Form(0), show_web: int = Form(0),
+    show_pages: int = Form(0), show_tech: int = Form(0), show_detail: int = Form(0),
+    is_visible: int = Form(0), sort_order: int = Form(0),
+    content_mode: str = Form("preset"),
+    overview: str = Form(""), features: str = Form(""),
+    screenshots: str = Form(""), architecture: str = Form("")):
     require_admin(request)
+    
+    detail_preset = {}
+    if content_mode == 'preset':
+        # 功能列表 - 每行一条
+        feature_list = [f.strip() for f in features.split('\n') if f.strip()]
+        # 截图集 - URL|标题 每行一条
+        screenshot_list = []
+        for line in screenshots.strip().split('\n'):
+            line = line.strip()
+            if line:
+                parts = line.split('|', 1)
+                url = parts[0].strip()
+                caption = parts[1].strip() if len(parts) > 1 else ''
+                if url:
+                    screenshot_list.append({'url': url, 'caption': caption})
+        
+        detail_preset = {
+            'overview': overview,
+            'features': feature_list,
+            'screenshots': screenshot_list,
+            'architecture': architecture
+        }
+    
+    detail_preset_json = json.dumps(detail_preset, ensure_ascii=False)
+    
     db = get_db()
     if pid > 0:
         db.execute("""UPDATE project SET name=?, slug=?, description=?, detail=?, tech_stack=?, category=?,
             github_url=?, web_url=?, pages_url=?, show_github=?, show_web=?, show_pages=?, show_tech=?,
-            show_detail=?, is_visible=?, sort_order=? WHERE id=?""",
+            show_detail=?, is_visible=?, sort_order=?, content_mode=?, detail_preset=? WHERE id=?""",
             (name, slug, description, detail, tech_stack, category, github_url, web_url, pages_url,
-             show_github, show_web, show_pages, show_tech, show_detail, is_visible, sort_order, pid))
+             show_github, show_web, show_pages, show_tech, show_detail, is_visible, sort_order,
+             content_mode, detail_preset_json, pid))
+        saved_slug = slug
     else:
         db.execute("""INSERT INTO project (name, slug, description, detail, tech_stack, category, github_url,
-            web_url, pages_url, show_github, show_web, show_pages, show_tech, show_detail, is_visible, sort_order)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            web_url, pages_url, show_github, show_web, show_pages, show_tech, show_detail, is_visible, sort_order,
+            content_mode, detail_preset)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (name, slug, description, detail, tech_stack, category, github_url, web_url, pages_url,
-             show_github, show_web, show_pages, show_tech, show_detail, is_visible, sort_order))
+             show_github, show_web, show_pages, show_tech, show_detail, is_visible, sort_order,
+             content_mode, detail_preset_json))
+        saved_slug = slug
     db.commit()
     db.close()
+    
+    # 支持 return_to 参数：从弹窗保存后回到项目页
+    return_to = request.query_params.get('return_to', '')
+    if return_to:
+        return RedirectResponse(return_to, status_code=303)
     return RedirectResponse("/admin/projects", status_code=303)
 
 @app.post("/admin/projects/{pid}/delete")

@@ -1,35 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ "Edit" if project else "New" }} Project - 管理后台</title>
+    <title>{{ "编辑项目" if project else "新建项目" }} - 管理后台</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;  position: relative; }
-        .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(var(--border, #e8e5dd) 1px, transparent 1px), linear-gradient(90deg, var(--border, #e8e5dd) 1px, transparent 1px); background-size: 60px 60px; opacity: 0.3; pointer-events: none; z-index: 0; }
-        .admin-nav { background: #fff; border-bottom: 1px solid #e0ddd5; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 0 24px; display: flex; align-items: center; height: 56px; }
+        body { background: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; position: relative; }
+        .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(#e8e5dd 1px, transparent 1px), linear-gradient(90deg, #e8e5dd 1px, transparent 1px); background-size: 60px 60px; opacity: 0.3; pointer-events: none; z-index: 0; }
+        .admin-nav { background: #fff; border-bottom: 1px solid #e0ddd5; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 0 24px; display: flex; align-items: center; height: 56px; position: relative; z-index: 1; }
         .admin-nav a { color: #666; text-decoration: none; padding: 16px 16px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
         .admin-nav a:hover, .admin-nav a.active { color: #1a1a1a; border-bottom-color: #4f6eff; }
         .admin-nav .spacer { flex: 1; }
         .admin-nav .brand { color: #4f6eff; font-weight: 700; font-size: 16px; margin-right: 24px; }
-        .content { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
-        h1 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
+        .content { max-width: 860px; margin: 0 auto; padding: 32px 24px; position: relative; z-index: 1; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .subtitle { color: #888; font-size: 14px; margin-bottom: 28px; }
+        
+        /* 模式切换 */
+        .mode-toggle {
+            display: flex;
+            background: #e8e5e0;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 28px;
+            gap: 4px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: #666;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .mode-btn:hover { color: #333; }
+        .mode-btn.active {
+            background: #fff;
+            color: #4f6eff;
+            box-shadow: 0 2px 8px rgba(79,110,255,0.15);
+        }
+        .mode-desc { font-weight: 400; font-size: 12px; color: #999; display: block; margin-top: 2px; }
+        
+        /* 表单元素 */
         .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 14px; color: #666; margin-bottom: 6px; font-weight: 500; }
-        input, textarea, select { width: 100%; padding: 10px 14px; background: #fafaf8; border: 1px solid #d0cdc5; border-radius: 8px; color: #1a1a1a; font-size: 14px; font-family: inherit; outline: none; }
-        input:focus, textarea:focus { border-color: #4f6eff; }
+        label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; font-weight: 600; }
+        .label-hint { font-weight: 400; color: #999; }
+        input, textarea, select {
+            width: 100%; padding: 10px 14px; background: #fafaf8;
+            border: 1px solid #d0cdc5; border-radius: 8px;
+            color: #1a1a1a; font-size: 14px; font-family: inherit; outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus { border-color: #4f6eff; box-shadow: 0 0 0 3px rgba(79,110,255,0.1); }
         textarea { min-height: 120px; resize: vertical; }
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .checkbox-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 20px; }
-        .checkbox-row label { display: flex; align-items: center; gap: 8px; color: #1a1a1a; cursor: pointer; }
-        .checkbox-row input { width: auto; }
-        .btn { padding: 10px 24px; background: #4f6eff; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
-        .btn:hover { background: #3d5bd9; }
-        .btn-ghost { background: transparent; border: 1px solid #27272a; color: #666; }
+        .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        
+        /* 上传区与提示 */
+        .hint-text { font-size: 12px; color: #999; margin-top: 6px; line-height: 1.8; }
+        
+        /* 通用按钮 */
+        .btn { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: #4f6eff; color: #fff; }
+        .btn-primary:hover { background: #3d5bd9; }
+        .btn-ghost { background: transparent; border: 1px solid #d0cdc5; color: #666; }
         .btn-ghost:hover { border-color: #4f6eff; color: #4f6eff; }
-        .actions { display: flex; gap: 12px; margin-top: 24px; }
+        .btn-sm { padding: 6px 14px; font-size: 13px; }
+        .actions { display: flex; gap: 12px; margin-top: 28px; padding-top: 24px; border-top: 1px solid #e8e5dd; }
         .error { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+        
+        /* Tab 面板 */
+        .panel { display: none; }
+        .panel.active { display: block; }
+        
+        /* 上传区 */
+        .upload-area {
+            border: 2px dashed #d0cdc5;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #888;
+        }
+        .upload-area:hover { border-color: #4f6eff; color: #4f6eff; background: rgba(79,110,255,0.03); }
+        .upload-area input[type="file"] { display: none; }
+        
+        /* Markdown 编辑器 */
+        .md-editor textarea {
+            min-height: 400px;
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            tab-size: 2;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .row, .row-3 { grid-template-columns: 1fr; }
+            .screenshot-item-form { flex-wrap: wrap; }
+            .screenshot-item-form .url-field,
+            .screenshot-item-form .caption-field { flex: 1 1 100%; }
+        }
     </style>
 </head>
 <body>
@@ -38,8 +116,7 @@
         <span class="brand">管理后台</span>
         <a href="/admin">仪表盘</a>
         <a href="/admin/projects" class="active">项目管理</a>
-        <a href="/admin/profile">个人资料</a>
-        <a href="/admin/themes">主题设置</a>
+        <a href="/admin/settings">站点设置</a>
         <a href="/admin/analytics">数据统计</a>
         <span class="spacer"></span>
         <a href="/" target="_blank">查看前台</a>
@@ -47,70 +124,189 @@
     </nav>
     <div class="content">
         <h1>{{ "编辑项目" if project else "新建项目" }}</h1>
+        <p class="subtitle">支持 Preset（结构化）和 Advanced（Markdown）两种编辑模式</p>
         {% if error %}<div class="error">{{ error }}</div>{% endif %}
-        <form method="post" action="/admin/projects/save">
+        
+        <form method="post" action="/admin/projects/save" enctype="multipart/form-data">
             <input type="hidden" name="pid" value="{{ project.id if project else 0 }}">
+            <input type="hidden" name="content_mode" id="content_mode" value="{{ project.content_mode if project and project.content_mode else 'preset' }}">
+            
+            <!-- 基础信息 -->
             <div class="row">
                 <div class="form-group">
                     <label>名称</label>
                     <input type="text" name="name" value="{{ project.name if project else '' }}" required>
                 </div>
                 <div class="form-group">
-                    <label>标识</label>
+                    <label>标识 <span class="label-hint">slug，用于URL</span></label>
                     <input type="text" name="slug" value="{{ project.slug if project else '' }}" required>
                 </div>
             </div>
+            
             <div class="form-group">
-                <label>简介</label>
+                <label>简介 <span class="label-hint">显示在项目卡片上的简短描述</span></label>
                 <input type="text" name="description" value="{{ project.description if project else '' }}">
             </div>
-            <div class="form-group">
-                <label>详细描述 (Markdown/HTML)</label>
-                <textarea name="detail">{{ project.detail if project else '' }}</textarea>
+            
+            <!-- 模式切换 -->
+            <div class="mode-toggle" id="modeToggle">
+                <button type="button" class="mode-btn {% if not project or project.content_mode == 'preset' or not project.content_mode %}active{% endif %}" data-mode="preset" onclick="switchMode('preset')">
+                    📋 Preset 模式
+                    <span class="mode-desc">结构化表单，快速填写</span>
+                </button>
+                <button type="button" class="mode-btn {% if project and project.content_mode == 'advanced' %}active{% endif %}" data-mode="advanced" onclick="switchMode('advanced')">
+                    ✍️ Advanced 模式
+                    <span class="mode-desc">自由 Markdown 写作</span>
+                </button>
             </div>
-            <div class="row">
+            
+            <!-- ===== Preset 面板 ===== -->
+            <div id="presetPanel" class="panel {% if not project or project.content_mode == 'preset' or not project.content_mode %}active{% endif %}">
                 <div class="form-group">
-                    <label>技术栈（逗号分隔）</label>
-                    <input type="text" name="tech_stack" value="{{ project.tech_stack if project else '' }}">
+                    <label>概述 <span class="label-hint">项目整体介绍，支持 Markdown</span></label>
+                    <textarea name="overview" rows="4" placeholder="用一段话介绍这个项目是做什么的...">{{ detail_preset.get('overview', '') if detail_preset else '' }}</textarea>
                 </div>
+                
                 <div class="form-group">
-                    <label>分类</label>
-                    <input type="text" name="category" value="{{ project.category if project else '' }}">
+                    <label>功能列表 <span class="label-hint">每行一个功能点，支持 Markdown</span></label>
+                    <textarea name="features" rows="5" placeholder="AI 智能搭配推荐 —— 基于视觉模型&#10;衣物 OCR 管理 —— 拍照自动识别&#10;智能衣橱分类管理">{{ (detail_preset.get('features', []) | join('\n')) if detail_preset and detail_preset.get('features') else '' }}</textarea>
                 </div>
-            </div>
-            <div class="row">
+                
                 <div class="form-group">
-                    <label>GitHub 地址</label>
-                    <input type="text" name="github_url" value="{{ project.github_url if project else '' }}">
+                    <label>截图集 <span class="label-hint">图片 URL，每行一张；支持 URL|标题 格式</span></label>
+                    <textarea name="screenshots" rows="3" placeholder="https://example.com/screenshot1.jpg|功能界面截图&#10;https://example.com/screenshot2.jpg">{{ (detail_preset.get('screenshots', []) | map(attribute='url') | list | join('\n')) if detail_preset and detail_preset.get('screenshots') else '' }}</textarea>
+                    <div style="margin-top: 8px; font-size: 12px; color: #999;">
+                        💡 每行一张，支持 URL 或 URL|标题，例如：<code>https://example.com/shot.png|主界面</code>
+                    </div>
                 </div>
+                
                 <div class="form-group">
-                    <label>在线预览地址</label>
-                    <input type="text" name="web_url" value="{{ project.web_url if project else '' }}">
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label>文档地址</label>
-                    <input type="text" name="pages_url" value="{{ project.pages_url if project else '' }}">
-                </div>
-                <div class="form-group">
-                    <label>排序</label>
-                    <input type="number" name="sort_order" value="{{ project.sort_order if project else 0 }}">
+                    <label>架构说明 <span class="label-hint">技术架构、实现细节等，支持 Markdown</span></label>
+                    <textarea name="architecture" rows="8" placeholder="描述项目的架构设计、技术选型、实现思路...&#10;&#10;支持 Markdown 语法：&#10;- 列表&#10;- **粗体**&#10;- `代码`&#10;- 代码块```">{{ detail_preset.get('architecture', '') if detail_preset else '' }}</textarea>
                 </div>
             </div>
-            <div class="checkbox-row">
-                <label><input type="checkbox" name="is_visible" value="1" {{ 'checked' if not project or project.is_visible else '' }}> 显示</label>
-                <label><input type="checkbox" name="show_github" value="1" {{ 'checked' if not project or project.show_github else '' }}> 显示 GitHub</label>
-                <label><input type="checkbox" name="show_web" value="1" {{ 'checked' if not project or project.show_web else '' }}> 显示 Web</label>
-                <label><input type="checkbox" name="show_pages" value="1" {{ 'checked' if not project or project.show_pages else '' }}> 显示文档</label>
-                <label><input type="checkbox" name="show_tech" value="1" {{ 'checked' if not project or project.show_tech else '' }}> 显示技术栈</label>
-                <label><input type="checkbox" name="show_detail" value="1" {{ 'checked' if not project or project.show_detail else '' }}> 显示详情</label>
+            
+            <!-- ===== Advanced 面板 ===== -->
+            <div id="advancedPanel" class="panel {% if project and project.content_mode == 'advanced' %}active{% endif %}">
+                <div class="form-group md-editor">
+                    <label>详细内容 <span class="label-hint">Markdown 格式，完全自由创作</span></label>
+                    <textarea name="detail" id="detailEditor" rows="20" placeholder="使用 Markdown 写项目的完整介绍...&#10;&#10;## 概述&#10;...&#10;&#10;## 功能特性&#10;- 功能一&#10;- 功能二&#10;&#10;## 架构&#10;...&#10;&#10;[Button:在线体验](https://example.com)&#10;&#10;---&#10;可混写 HTML：&lt;a href=&quot;...&quot; class=&quot;btn&quot;&gt;按钮&lt;/a&gt;">{{ project.detail if project else '' }}</textarea>
+                    <div style="margin-top: 8px; font-size: 12px; color: #999; line-height: 1.8;">
+                        💡 提示：标准 Markdown 全部支持。链接 <code>[文本](url)</code>，按钮 <code>[Button:文本](url)</code>，图片 <code>![alt](url)</code>，代码块 <code>```python</code>，表格，可混写 HTML。
+                    </div>
+                </div>
             </div>
+            
+            <!-- 链接和元数据 -->
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e8e5dd;">
+                <h3 style="font-size: 16px; margin-bottom: 16px;">🔗 链接按钮（填了 URL 前台自动显示，空则灰掉）</h3>
+                <div class="row-3">
+                    <div class="form-group">
+                        <label>GitHub</label>
+                        <input type="text" name="github_url" placeholder="https://github.com/user/repo" value="{{ project.github_url if project else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>在线演示</label>
+                        <input type="text" name="web_url" placeholder="https://example.com" value="{{ project.web_url if project else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>文档地址</label>
+                        <input type="text" name="pages_url" placeholder="https://docs.example.com" value="{{ project.pages_url if project else '' }}">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 高级设置 -->
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e8e5dd;">
+                <h3 style="font-size: 16px; margin-bottom: 16px;">⚙️ 高级设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>技术栈 <span class="label-hint">逗号分隔</span></label>
+                        <input type="text" name="tech_stack" value="{{ project.tech_stack if project else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>分类</label>
+                        <input type="text" name="category" value="{{ project.category if project else '' }}" placeholder="AI Agent / 工具 / 文档 / Web应用">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>排序</label>
+                        <input type="number" name="sort_order" value="{{ project.sort_order if project else 0 }}">
+                    </div>
+                </div>
+                <div class="form-group" style="display:flex; gap: 20px; flex-wrap: wrap;">
+                    <label style="display:flex; align-items:center; gap: 6px; cursor:pointer; font-weight:400;">
+                        <input type="checkbox" name="is_visible" value="1" {{ 'checked' if not project or project.is_visible else '' }}> 前台显示
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 6px; cursor:pointer; font-weight:400;">
+                        <input type="checkbox" name="show_tech" value="1" {{ 'checked' if not project or project.show_tech else '' }}> 显示技术栈
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 6px; cursor:pointer; font-weight:400;">
+                        <input type="checkbox" name="show_detail" value="1" {{ 'checked' if not project or project.show_detail else '' }}> 显示详情
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 6px; cursor:pointer; font-weight:400;">
+                        <input type="checkbox" name="show_github" value="1" {{ 'checked' if not project or project.show_github else '' }}> 显示 GitHub
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 6px; cursor:pointer; font-weight:400;">
+                        <input type="checkbox" name="show_web" value="1" {{ 'checked' if not project or project.show_web else '' }}> 显示 Web
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 6px; cursor:pointer; font-weight:400;">
+                        <input type="checkbox" name="show_pages" value="1" {{ 'checked' if not project or project.show_pages else '' }}> 显示文档
+                    </label>
+                </div>
+            </div>
+            
             <div class="actions">
-                <button type="submit" class="btn">保存</button>
+                <button type="submit" class="btn btn-primary">💾 保存项目</button>
                 <a href="/admin/projects" class="btn btn-ghost">取消</a>
             </div>
         </form>
     </div>
+
+<script>
+// ===== 模式切换 =====
+function switchMode(mode) {
+    document.getElementById('content_mode').value = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    document.getElementById('presetPanel').classList.toggle('active', mode === 'preset');
+    document.getElementById('advancedPanel').classList.toggle('active', mode === 'advanced');
+    
+    // Preset → Advanced：自动拼接 Markdown
+    if (mode === 'advanced') {
+        const overview = document.querySelector('textarea[name="overview"]').value.trim();
+        const featuresText = document.querySelector('textarea[name="features"]').value.trim();
+        const screenshotsText = document.querySelector('textarea[name="screenshots"]').value.trim();
+        const architecture = document.querySelector('textarea[name="architecture"]').value.trim();
+        
+        let md = '';
+        if (overview) md += '## 概述\n\n' + overview + '\n\n';
+        if (featuresText) {
+            const features = featuresText.split('\n').map(f => f.trim()).filter(Boolean);
+            md += '## 功能特性\n\n' + features.map(f => '- ' + f).join('\n') + '\n\n';
+        }
+        if (screenshotsText) {
+            md += '## 截图预览\n\n';
+            screenshotsText.split('\n').forEach(line => {
+                line = line.trim();
+                if (!line) return;
+                const [url, ...captionParts] = line.split('|');
+                const caption = captionParts.join('|');
+                md += '![' + (caption || '截图') + '](' + url.trim() + ')\n';
+                if (caption) md += '*' + caption + '*\n';
+                md += '\n';
+            });
+        }
+        if (architecture) md += '## 架构说明\n\n' + architecture + '\n\n';
+        
+        const editor = document.getElementById('detailEditor');
+        if (!editor.value.trim() || confirm('切换到 Advanced 模式将用 Preset 数据生成 Markdown，是否覆盖？')) {
+            if (editor.value.trim() && !confirm('确认覆盖？')) return;
+            editor.value = md.trim();
+        }
+    }
+}
+
+</script>
 </body>
 </html>
