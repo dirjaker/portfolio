@@ -432,7 +432,6 @@ async function loadProjects() {
         card.className = 'project-card fade-in';
         card.style.animationDelay = `${i * 0.08}s`;
         card.onclick = () => {
-            fetch(`/api/view/${p.slug}`, { method: 'POST' });
             window.location.href = `/project/${p.slug}`;
         };
         let techHtml = '';
