@@ -697,6 +697,11 @@ AI 穿搭推荐
 </style>
 
 <script>
+// ===== 访问计数（仅前台访问计次） =====
+{% if not from_admin %}
+fetch('/api/view/{{ project.slug }}', { method: 'POST' });
+{% endif %}
+
 // ===== 轮播图 =====
 (function() {
     var carousel = document.getElementById('ss-carousel');
