@@ -13,13 +13,13 @@
 <div class="grid-bg"></div>
 <div class="container">
     <div class="top-bar">
-        <a href="/" class="back-link">
+        <a href="{{ back_url }}" class="back-link">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             返回
         </a>
-        {% if is_admin %}
+        {% if from_admin %}
         <button class="edit-btn" onclick="openEditModal()">✎ 编辑</button>
         {% endif %}
     </div>
@@ -33,6 +33,44 @@
         <p class="project-desc">{{ project.description }}</p>
         {% endif %}
     </header>
+
+    <div class="links">
+        {% if project.github_url %}
+        <a href="{{ project.github_url }}" target="_blank" rel="noopener" class="link-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            GitHub
+        </a>
+        {% else %}
+        <span class="link-btn disabled">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            GitHub
+        </span>
+        {% endif %}
+        {% if project.web_url %}
+        <a href="{{ project.web_url }}" target="_blank" rel="noopener" class="link-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Website
+        </a>
+        {% else %}
+        <span class="link-btn disabled">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Website
+        </span>
+        {% endif %}
+        {% if doc_html %}
+        <a href="javascript:void(0)" onclick="openDocModal()" class="link-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            文档
+        </a>
+        {% else %}
+        <span class="link-btn disabled">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            文档
+        </span>
+        {% endif %}
+    </div>
+
+    <div class="header-divider"></div>
 
     {% if project.show_detail and project.detail_html %}
     <div class="detail-body">
@@ -51,42 +89,6 @@
     </div>
     {% endif %}
 
-    <div class="links">
-        {% if project.github_url %}
-        <a href="{{ project.github_url }}" target="_blank" rel="noopener" class="link-btn">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            GitHub
-        </a>
-        {% else %}
-        <span class="link-btn disabled">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            GitHub
-        </span>
-        {% endif %}
-        {% if project.web_url %}
-        <a href="{{ project.web_url }}" target="_blank" rel="noopener" class="link-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            Website
-        </a>
-        {% else %}
-        <span class="link-btn disabled">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            Website
-        </span>
-        {% endif %}
-        {% if project.pages_url %}
-        <a href="{{ project.pages_url }}" target="_blank" rel="noopener" class="link-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            Documentation
-        </a>
-        {% else %}
-        <span class="link-btn disabled">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            Documentation
-        </span>
-        {% endif %}
-    </div>
-
     <div class="detail-footer">{{ project.view_count }} 次访问</div>
 </div>
 
@@ -94,114 +96,180 @@
 <div class="modal-overlay" id="editModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>编辑项目 — {{ project.name }}</h2>
-            <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            <div class="modal-header-left">
+                <div class="modal-header-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </div>
+                <div>
+                    <h2>编辑项目</h2>
+                    <span class="modal-header-sub">{{ project.name }}</span>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closeEditModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
         </div>
         <div class="modal-body">
-            <form method="post" action="/admin/projects/save?return_to=/project/{{ project.slug }}" id="editForm">
+            <form method="post" action="/admin/projects/save?return_to={% if from_admin %}/admin/projects{% else %}/project/{{ project.slug }}{% endif %}" id="editForm">
                 <input type="hidden" name="pid" value="{{ project.id }}">
                 <input type="hidden" name="content_mode" id="modal_content_mode" value="{{ project.content_mode or 'preset' }}">
+                <input type="hidden" name="screenshots" id="screenshots_input" value="">
 
                 <!-- 基础信息 -->
-                <div class="mf-row">
-                    <div class="mf-group">
-                        <label>名称</label>
-                        <input type="text" name="name" value="{{ project.name }}" required>
+                <div class="m-section">
+                    <div class="m-section-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span>基本信息</span>
                     </div>
-                    <div class="mf-group">
-                        <label>标识 <span class="mf-hint">slug</span></label>
-                        <input type="text" name="slug" value="{{ project.slug }}" required>
+                    <div class="m-row">
+                        <div class="m-field">
+                            <label>项目名称</label>
+                            <input type="text" name="name" value="{{ project.name }}" required placeholder="例如：vestio">
+                        </div>
+                        <div class="m-field">
+                            <label>URL 标识 <span class="m-hint">slug</span></label>
+                            <input type="text" name="slug" value="{{ project.slug }}" required placeholder="例如：vestio">
+                        </div>
                     </div>
-                </div>
-                <div class="mf-group">
-                    <label>简介</label>
-                    <input type="text" name="description" value="{{ project.description or '' }}">
-                </div>
-
-                <!-- 模式切换 -->
-                <div class="mf-mode-toggle" id="modalModeToggle">
-                    <button type="button" class="mf-mode-btn {% if project.content_mode != 'advanced' %}active{% endif %}" data-mode="preset" onclick="switchModalMode('preset')">Preset 模式</button>
-                    <button type="button" class="mf-mode-btn {% if project.content_mode == 'advanced' %}active{% endif %}" data-mode="advanced" onclick="switchModalMode('advanced')">Advanced 模式</button>
-                </div>
-
-                <!-- Preset 面板 -->
-                <div id="modalPresetPanel" class="mf-panel {% if project.content_mode != 'advanced' %}active{% endif %}">
-                    <div class="mf-group">
-                        <label>概述</label>
-                        <textarea name="overview" rows="3">{{ detail_preset.get('overview', '') }}</textarea>
-                    </div>
-                    <div class="mf-group">
-                        <label>功能列表 <span class="mf-hint">每行一条</span></label>
-                        <textarea name="features" rows="4">{{ (detail_preset.get('features', []) | join('\n')) }}</textarea>
-                    </div>
-                    <div class="mf-group">
-                        <label>截图集 <span class="mf-hint">URL|标题，每行一张</span></label>
-                        <textarea name="screenshots" rows="2">{{ (detail_preset.get('screenshots', []) | map(attribute='url') | list | join('\n')) }}</textarea>
-                    </div>
-                    <div class="mf-group">
-                        <label>架构说明</label>
-                        <textarea name="architecture" rows="5">{{ detail_preset.get('architecture', '') }}</textarea>
+                    <div class="m-field">
+                        <label>一句话简介</label>
+                        <input type="text" name="description" value="{{ project.description or '' }}" placeholder="用一句话描述项目">
                     </div>
                 </div>
 
-                <!-- Advanced 面板 -->
-                <div id="modalAdvancedPanel" class="mf-panel {% if project.content_mode == 'advanced' %}active{% endif %}">
-                    <div class="mf-group">
-                        <label>详细内容 <span class="mf-hint">Markdown</span></label>
-                        <textarea name="detail" rows="10" style="font-family:monospace;font-size:13px;">{{ project.detail or '' }}</textarea>
+                <!-- 分类与展示 -->
+                <div class="m-section">
+                    <div class="m-section-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                        <span>分类信息</span>
                     </div>
+                    <div class="m-field">
+                        <label>分类</label>
+                        <input type="text" name="category" value="{{ project.category or '' }}" placeholder="如：WEB 应用">
+                    </div>
+                    <div class="m-field">
+                        <label>技术栈 <span class="m-hint">逗号分隔</span></label>
+                        <input type="text" name="tech_stack" value="{{ project.tech_stack or '' }}" placeholder="如：Vue 3, Naive UI, FastAPI">
+                    </div>
+
                 </div>
 
                 <!-- 链接 -->
-                <div class="mf-section-title">链接</div>
-                <div class="mf-row mf-row-3">
-                    <div class="mf-group">
-                        <label>GitHub</label>
-                        <input type="text" name="github_url" value="{{ project.github_url or '' }}">
+                <div class="m-section">
+                    <div class="m-section-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        <span>链接</span>
                     </div>
-                    <div class="mf-group">
-                        <label>Website</label>
-                        <input type="text" name="web_url" value="{{ project.web_url or '' }}">
-                    </div>
-                    <div class="mf-group">
-                        <label>文档</label>
-                        <input type="text" name="pages_url" value="{{ project.pages_url or '' }}">
+                    <div class="m-row m-row-2">
+                        <div class="m-field">
+                            <label><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg> GitHub</label>
+                            <input type="text" name="github_url" value="{{ project.github_url or '' }}" placeholder="https://github.com/用户名/仓库">
+                        </div>
+                        <div class="m-field">
+                            <label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Website</label>
+                            <input type="text" name="web_url" value="{{ project.web_url or '' }}" placeholder="https://">
+                        </div>
                     </div>
                 </div>
 
-                <!-- 设置 -->
-                <div class="mf-section-title">设置</div>
-                <div class="mf-row">
-                    <div class="mf-group">
-                        <label>技术栈 <span class="mf-hint">逗号分隔</span></label>
-                        <input type="text" name="tech_stack" value="{{ project.tech_stack or '' }}">
+                <!-- 文档 -->
+                <div class="m-section">
+                    <div class="m-section-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <span>文档</span>
+                        <span class="m-hint" style="margin-left:auto;font-weight:400">上传 .md 文件</span>
                     </div>
-                    <div class="mf-group">
-                        <label>分类</label>
-                        <input type="text" name="category" value="{{ project.category or '' }}">
+                    <div class="m-field">
+                        <input type="hidden" name="doc_content" id="doc_content_input" value="{{ project.doc_content or '' }}">
+                        <div class="m-doc-upload" id="docUploadZone">
+                            <div class="m-doc-info" id="docInfo" {% if not project.doc_content %}style="display:none"{% endif %}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                <span>已上传文档</span>
+                                <button type="button" class="m-doc-remove" onclick="removeDoc()">移除</button>
+                            </div>
+                            <div class="m-doc-empty" id="docEmpty" {% if project.doc_content %}style="display:none"{% endif %}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <span class="m-doc-upload-text">上传 .md 文件</span>
+                            </div>
+                            <input type="file" id="docFileInput" accept=".md" style="display:none">
+                        </div>
                     </div>
                 </div>
-                <div class="mf-row">
-                    <div class="mf-group">
-                        <label>排序</label>
-                        <input type="number" name="sort_order" value="{{ project.sort_order or 0 }}">
+
+                <!-- 详细内容 -->
+                <div class="m-section">
+                    <div class="m-section-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <span>详细内容</span>
                     </div>
-                    <div class="mf-checkboxes">
-                        <label><input type="checkbox" name="is_visible" value="1" {{ 'checked' if project.is_visible else '' }}> 显示</label>
-                        <label><input type="checkbox" name="show_tech" value="1" {{ 'checked' if project.show_tech else '' }}> 技术栈</label>
-                        <label><input type="checkbox" name="show_detail" value="1" {{ 'checked' if project.show_detail else '' }}> 详情</label>
+                    <div class="m-field">
+                        <label>概述</label>
+                        <textarea name="overview" rows="3" placeholder="项目的整体介绍，会展示在详情页顶部">{{ detail_preset.get('overview', '') }}</textarea>
                     </div>
+                    <div class="m-field">
+                        <label>功能特性 <span class="m-hint">每行一条功能</span></label>
+                        <textarea name="features" rows="4" placeholder="衣物管理
+AI 穿搭推荐
+智能打标">{{ (detail_preset.get('features', []) | join('\n')) }}</textarea>
+                    </div>
+                    <div class="m-field">
+                        <label>项目详情</label>
+                        <textarea name="architecture" rows="5" placeholder="技术架构、实现亮点、设计思路等，支持 Markdown 格式">{{ detail_preset.get('architecture', '') }}</textarea>
+                    </div>
+                </div>
+
+                <!-- 截图（可视化） -->
+                <div class="m-section">
+                    <div class="m-section-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>截图</span>
+                        <span class="m-hint" style="margin-left:auto;font-weight:400">拖拽可排序，悬停可删除</span>
+                    </div>
+                    <div class="ss-grid" id="ssGrid">
+                        <!-- 截图卡片 + 添加卡片由 JS 渲染 -->
+                    </div>
+                    <input type="file" id="ssFileInput" accept="image/*" multiple style="display:none">
+                    <label style="display:flex; align-items:center; gap: 6px; margin-top: 10px; cursor:pointer; font-size:13px; font-weight:600; color:var(--text-secondary);">
+                        <input type="checkbox" name="show_screenshots" value="1" {{ 'checked' if project.show_screenshots != 0 else '' }}>
+                        在前台展示截图
+                    </label>
                 </div>
 
                 <input type="hidden" name="show_github" value="1">
                 <input type="hidden" name="show_web" value="1">
                 <input type="hidden" name="show_pages" value="1">
 
-                <div class="mf-actions">
-                    <button type="submit" class="mf-btn mf-btn-primary">💾 保存</button>
-                    <button type="button" class="mf-btn mf-btn-ghost" onclick="closeEditModal()">取消</button>
-                </div>
             </form>
+        </div>
+        <div class="m-actions">
+            <button type="button" class="m-btn m-btn-ghost" onclick="closeEditModal()">取消</button>
+            <button type="submit" class="m-btn m-btn-primary" form="editForm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                保存修改
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 文档弹窗 ===== -->
+<div class="modal-overlay" id="docModal">
+    <div class="modal-content doc-modal-content">
+        <div class="modal-header">
+            <div class="modal-header-left">
+                <div class="modal-header-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <div>
+                    <h2>文档</h2>
+                    <span class="modal-header-sub">{{ project.name }}</span>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closeDocModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="doc-modal-body">
+            {{ doc_html | safe }}
         </div>
     </div>
 </div>
@@ -209,7 +277,7 @@
 <style>
 /* ===== 页面样式 ===== */
 .detail-header { display: none; }
-.container { max-width: 800px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+.container { max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
 
 .top-bar {
     display: flex; justify-content: space-between; align-items: center;
@@ -225,7 +293,7 @@
 .edit-btn {
     padding: 6px 16px; font-size: 13px; font-weight: 600;
     background: var(--accent); color: #fff; border: none;
-    border-radius: 6px; cursor: pointer; transition: all 0.2s;
+    border-radius: 6px; cursor: pointer; transition: opacity 0.2s;
 }
 .edit-btn:hover { opacity: 0.85; }
 
@@ -240,25 +308,36 @@
 .project-title { font-size: 38px; font-weight: 800; letter-spacing: -1px; color: var(--text-primary); line-height: 1.15; }
 .project-desc { font-size: 16px; color: var(--text-secondary); margin-top: 10px; line-height: 1.7; max-width: 600px; }
 
+/* 链接按钮 */
+.links { margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+.link-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); text-decoration: none; font-size: 14px; font-weight: 500; background: var(--bg-card); transition: border-color 0.2s, color 0.2s, background 0.2s; }
+.link-btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.link-btn.disabled { border-color: var(--border); color: color-mix(in srgb, var(--text-secondary) 35%, transparent); cursor: not-allowed; opacity: 0.4; }
+.link-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* 标题区与正文分隔线 */
+.header-divider { height: 1px; background: var(--border); margin-bottom: 40px; }
+
 /* Preset sections */
 .preset-section { margin-bottom: 40px; }
-.preset-section h2 {
-    font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+.detail-body .preset-section h2 {
+    font-size: 20px; font-weight: 700;
     color: var(--accent); margin-bottom: 16px;
 }
 .preset-overview { font-size: 15px; line-height: 1.8; color: var(--text-primary); }
 .preset-overview p { margin-bottom: 10px; }
 .preset-overview strong { color: var(--text-primary); font-weight: 600; }
 
-.feature-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; list-style: none; padding: 0; }
-.feature-item { font-size: 14px; line-height: 1.6; color: var(--text-primary); }
+.feature-list { display: flex; flex-direction: column; gap: 10px; list-style: none; padding: 0; }
+.feature-item { font-size: 14px; line-height: 1.6; color: var(--text-primary); padding-left: 0; }
 
-.screenshot-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.screenshot-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 .screenshot-item { margin: 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-.screenshot-item img { width: 100%; height: auto; display: block; }
+.screenshot-item img { width: 100%; height: auto; display: block; aspect-ratio: 16/9; object-fit: cover; }
 .screenshot-item figcaption { padding: 8px 12px; font-size: 13px; color: var(--text-secondary); text-align: center; border-top: 1px solid var(--border); }
 
 .preset-architecture { font-size: 15px; line-height: 1.8; color: var(--text-primary); }
+.preset-section .preset-architecture h2 { font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: 0; text-transform: none; margin-bottom: 12px; }
 .preset-architecture h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-top: 24px; margin-bottom: 8px; }
 .preset-architecture h3:first-child { margin-top: 0; }
 .preset-architecture ul { margin: 8px 0 16px; padding-left: 20px; }
@@ -287,118 +366,329 @@
 .tech-tag { padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; color: var(--text-secondary); font-weight: 500; transition: all 0.2s; }
 .tech-tag:hover { border-color: var(--accent); color: var(--accent); }
 
-/* Links */
-.links { margin-bottom: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
-.link-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-.link-btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
-.link-btn.disabled { border-color: var(--border); color: color-mix(in srgb, var(--text-secondary) 35%, transparent); cursor: not-allowed; opacity: 0.4; }
-.link-btn svg { width: 18px; height: 18px; }
+/* ===== 轮播图 ===== */
+.ss-carousel {
+    position: relative;
+    margin-bottom: 40px;
+    user-select: none;
+}
+.ss-viewport {
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+}
+.ss-track {
+    display: flex;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ss-slide {
+    flex: 0 0 100%;
+    min-width: 0;
+}
+.ss-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+.ss-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    color: #333;
+    font-size: 28px;
+    line-height: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2;
+}
+.ss-arrow:hover { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+.ss-prev { left: 12px; }
+.ss-next { right: 12px; }
+.ss-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+.ss-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.ss-dot.active { background: var(--accent); transform: scale(1.3); }
 
 .detail-footer { margin-top: 40px; color: var(--text-secondary); font-size: 13px; }
 
-/* ===== 弹窗样式 ===== */
+/* 文档区 */
+.doc-section {
+    margin-bottom: 40px;
+    font-size: 15px; line-height: 1.8; color: var(--text-primary);
+}
+.doc-section h2:first-child {
+    font-size: 20px; font-weight: 700;
+    color: var(--accent); margin-bottom: 16px;
+}
+.doc-section h2:not(:first-child) {
+    font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: 0; text-transform: none; margin-bottom: 12px;
+}
+.doc-section h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-top: 24px; margin-bottom: 8px; }
+.doc-section ul { margin: 8px 0 16px; padding-left: 20px; }
+.doc-section li { padding: 3px 0; color: var(--text-secondary); }
+.doc-section p { color: var(--text-secondary); margin-bottom: 10px; }
+.doc-section code { background: color-mix(in srgb, var(--accent) 8%, transparent); padding: 2px 6px; border-radius: 4px; font-size: 14px; }
+.doc-section pre { background: color-mix(in srgb, var(--bg-secondary) 30%, var(--bg-primary)); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; margin-bottom: 16px; }
+.doc-section pre code { background: none; padding: 0; }
+.doc-section a { color: var(--accent); text-decoration: none; }
+.doc-section a:hover { text-decoration: underline; }
+
+/* 文档上传组件 */
+.m-doc-upload {
+    border: 2px dashed #d0d2d6; border-radius: 12px;
+    padding: 16px; cursor: pointer; transition: all 0.2s;
+    background: #fafbfc;
+}
+.m-doc-upload:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, #fafbfc); }
+.m-doc-empty { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; }
+.m-doc-upload-text { font-size: 14px; font-weight: 600; color: #555; }
+.m-doc-info {
+    display: flex; align-items: center; gap: 8px; padding: 4px 0;
+    font-size: 14px; color: #333;
+}
+.m-doc-info svg { flex-shrink: 0; color: var(--accent); }
+.m-doc-remove {
+    margin-left: auto; padding: 4px 12px; font-size: 12px;
+    background: transparent; border: 1px solid #e0e2e6; border-radius: 6px;
+    color: #e05050; cursor: pointer; transition: all 0.15s;
+}
+.m-doc-remove:hover { background: #fee; border-color: #e05050; }
+
+/* ===== 编辑弹窗 ===== */
 .modal-overlay {
     display: none;
     position: fixed; inset: 0; z-index: 1000;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     overflow-y: auto;
-    padding: 40px 16px;
+    padding: 60px 16px;
 }
 .modal-overlay.active { display: block; }
 
 .modal-content {
-    max-width: 720px; margin: 0 auto;
-    background: #f8f6f1;
-    border-radius: 16px;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    max-width: 780px; margin: 0 auto;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.25);
     overflow: hidden;
+    animation: mFadeIn 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 120px);
+}
+@keyframes mFadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .modal-header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 20px 28px;
     background: #fff;
-    border-bottom: 1px solid #e8e6e1;
+    border-bottom: 1px solid #eaecf0;
 }
-.modal-header h2 { font-size: 16px; font-weight: 700; color: #1a1a1a; }
-.modal-close {
-    width: 32px; height: 32px; border: none; background: transparent;
-    font-size: 22px; color: #999; cursor: pointer; border-radius: 6px;
+.modal-header-left { display: flex; align-items: center; gap: 14px; }
+.modal-header-icon {
+    width: 40px; height: 40px;
     display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
+    background: #f0f1f3; border-radius: 10px;
+    color: #666;
 }
-.modal-close:hover { background: #f0f0f0; color: #333; }
+.modal-header-left h2 { font-size: 17px; font-weight: 700; color: #111; margin: 0; line-height: 1.3; }
+.modal-header-sub { font-size: 12px; color: #999; }
+
+.modal-close {
+    width: 34px; height: 34px; border: none; background: transparent;
+    cursor: pointer; border-radius: 8px; color: #999;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+}
+.modal-close:hover { background: #f0f1f3; color: #333; }
 
 .modal-body {
-    padding: 24px 28px 32px;
-    max-height: calc(100vh - 140px);
+    padding: 28px;
+    flex: 1;
     overflow-y: auto;
+    min-height: 0;
 }
 
-/* 弹窗表单 */
-.mf-group { margin-bottom: 14px; }
-.mf-group label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px; }
-.mf-hint { font-weight: 400; color: #999; }
-.mf-group input, .mf-group textarea, .mf-group select {
-    width: 100%; padding: 8px 12px; background: #fff;
-    border: 1px solid #d0cdc5; border-radius: 6px;
+/* ===== Doc Modal ===== */
+.doc-modal-content {
+    max-width: 780px;
+    width: 90vw;
+    max-height: 85vh;
+}
+.doc-modal-body {
+    padding: 32px 36px;
+    overflow-y: auto;
+    max-height: calc(85vh - 70px);
+    line-height: 1.8;
+    color: #333;
+    font-size: 14px;
+}
+.doc-modal-body h1 { font-size: 22px; margin: 28px 0 16px; font-weight: 700; color: #111; }
+.doc-modal-body h2 { font-size: 18px; margin: 24px 0 12px; font-weight: 600; color: #222; }
+.doc-modal-body h3 { font-size: 15px; margin: 20px 0 10px; font-weight: 600; color: #333; }
+.doc-modal-body p { margin: 0 0 12px; }
+.doc-modal-body ul, .doc-modal-body ol { margin: 0 0 12px; padding-left: 20px; }
+.doc-modal-body li { margin-bottom: 4px; }
+.doc-modal-body code {
+    background: #f4f5f7; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #d63384;
+}
+.doc-modal-body pre {
+    background: #1e1e2e; color: #cdd6f4; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-size: 13px; line-height: 1.5; margin: 0 0 16px;
+}
+.doc-modal-body pre code { background: transparent; padding: 0; color: inherit; }
+.doc-modal-body blockquote {
+    border-left: 3px solid #4a6cf7; padding-left: 14px; margin: 0 0 12px; color: #555; background: #f8f9ff; padding: 8px 14px; border-radius: 0 6px 6px 0;
+}
+.doc-modal-body table { border-collapse: collapse; width: 100%; margin: 0 0 16px; font-size: 13px; }
+.doc-modal-body th, .doc-modal-body td { border: 1px solid #e0e0e0; padding: 8px 12px; text-align: left; }
+.doc-modal-body th { background: #f5f6f8; font-weight: 600; }
+.doc-modal-body hr { border: none; border-top: 1px solid #eaecf0; margin: 20px 0; }
+.doc-modal-body img { max-width: 100%; border-radius: 6px; margin: 8px 0; }
+.doc-modal-body a { color: #4a6cf7; text-decoration: none; }
+.doc-modal-body a:hover { text-decoration: underline; }
+
+/* Section */
+.m-section {
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #eaecf0;
+}
+.m-section:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.m-section-header {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: #444;
+    margin-bottom: 16px;
+    letter-spacing: 0.3px;
+}
+.m-section-header svg { flex-shrink: 0; color: #999; }
+
+/* Fields */
+.m-field { margin-bottom: 14px; }
+.m-field:last-child { margin-bottom: 0; }
+.m-field label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: #555;
+    margin-bottom: 5px;
+}
+.m-field label svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.6; }
+.m-hint { font-weight: 400; color: #aaa; font-size: 11px; }
+.m-field input, .m-field textarea {
+    width: 100%; padding: 9px 13px; background: #fff;
+    border: 1.5px solid #e0e2e6; border-radius: 10px;
     color: #1a1a1a; font-size: 13px; font-family: inherit; outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
 }
-.mf-group input:focus, .mf-group textarea:focus { border-color: var(--accent); }
-.mf-group textarea { resize: vertical; min-height: 60px; }
+.m-field input:focus, .m-field textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.m-field textarea { resize: vertical; min-height: 60px; }
+.m-field input::placeholder, .m-field textarea::placeholder { color: #bbb; }
 
-.mf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.mf-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.m-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.m-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.m-row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
-.mf-section-title {
-    font-size: 12px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1px; color: #999; margin: 16px 0 10px;
-    padding-top: 12px; border-top: 1px solid #e8e6e1;
+/* Screenshot grid */
+.ss-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
 }
+.ss-card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #e0e2e6;
+    background: #f8f9fa;
+    aspect-ratio: 16 / 9;
+    cursor: grab;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.ss-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.ss-card.dragging { opacity: 0.5; transform: scale(0.95); }
+.ss-card.drag-over { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+.ss-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ss-card-delete {
+    position: absolute; top: 6px; right: 6px;
+    width: 26px; height: 26px; border: none; border-radius: 7px;
+    background: rgba(0,0,0,0.6); color: #fff;
+    cursor: pointer; opacity: 0; transition: opacity 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; line-height: 1;
+}
+.ss-card:hover .ss-card-delete { opacity: 1; }
+.ss-card-delete:hover { background: rgba(220,50,50,0.9); }
+.ss-card-drag-hint {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 5px; background: rgba(0,0,0,0.5);
+    color: #fff; font-size: 10px; text-align: center; opacity: 0;
+    transition: opacity 0.15s;
+}
+.ss-card:hover .ss-card-drag-hint { opacity: 1; }
 
-.mf-mode-toggle {
-    display: flex; background: #e8e5e0; border-radius: 8px;
-    padding: 3px; margin-bottom: 16px; gap: 3px;
+/* 添加卡片 */
+.ss-add-card {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; cursor: pointer; border: 2px dashed #d0d2d6; background: #fafbfc;
+    color: #999; aspect-ratio: 16 / 9; transition: all 0.2s;
 }
-.mf-mode-btn {
-    flex: 1; padding: 7px 16px; border: none; border-radius: 6px;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    background: transparent; color: #666; transition: all 0.2s;
-}
-.mf-mode-btn.active { background: #fff; color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.ss-add-card:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, #fafbfc); }
+.ss-add-card.drag-over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, #fafbfc); }
+.ss-add-text { font-size: 13px; font-weight: 500; }
+.ss-add-card svg { display: block; }
 
-.mf-panel { display: none; }
-.mf-panel.active { display: block; }
-
-.mf-checkboxes {
-    display: flex; align-items: flex-end; gap: 16px; padding-bottom: 4px;
+/* Actions */
+.m-actions {
+    display: flex; gap: 10px; justify-content: flex-end;
+    padding: 18px 28px;
+    border-top: 1px solid #eaecf0;
+    background: #fff;
+    flex-shrink: 0;
 }
-.mf-checkboxes label {
-    display: flex; align-items: center; gap: 4px;
-    font-size: 13px; color: #666; cursor: pointer;
+.m-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 22px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    border: none; text-decoration: none;
+    transition: all 0.15s;
 }
-.mf-checkboxes input { width: auto; }
-
-.mf-actions {
-    display: flex; gap: 10px; margin-top: 20px;
-    padding-top: 16px; border-top: 1px solid #e8e6e1;
-}
-.mf-btn {
-    padding: 8px 20px; border-radius: 6px; font-size: 13px;
-    font-weight: 600; cursor: pointer; border: none; text-decoration: none;
-}
-.mf-btn-primary { background: var(--accent); color: #fff; }
-.mf-btn-primary:hover { opacity: 0.85; }
-.mf-btn-ghost { background: transparent; border: 1px solid #d0cdc5; color: #666; }
-.mf-btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.m-btn-primary { background: var(--accent); color: #fff; }
+.m-btn-primary:hover { opacity: 0.88; box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 30%, transparent); }
+.m-btn-primary svg { color: #fff; }
+.m-btn-ghost { background: transparent; border: 1.5px solid #e0e2e6; color: #666; }
+.m-btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
 
 @media (max-width: 768px) {
     .container { padding: 24px 16px 60px; }
     .project-title { font-size: 28px; }
-    .feature-list { grid-template-columns: 1fr; }
     .screenshot-gallery { grid-template-columns: 1fr; }
     .modal-content { border-radius: 12px; }
     .modal-body { padding: 20px; }
@@ -407,65 +697,213 @@
 </style>
 
 <script>
-const themeVars = {{ theme_vars | tojson }};
-const root = document.documentElement;
-for (const [key, val] of Object.entries(themeVars)) {
-    root.style.setProperty(key, val);
-}
+// ===== 轮播图 =====
+(function() {
+    var carousel = document.getElementById('ss-carousel');
+    if (!carousel) return;
+    var track = carousel.querySelector('.ss-track');
+    var slides = track.querySelectorAll('.ss-slide');
+    var prev = carousel.querySelector('.ss-prev');
+    var next = carousel.querySelector('.ss-next');
+    var dots = carousel.querySelectorAll('.ss-dot');
+    var idx = 0;
+    function goTo(i) {
+        if (i < 0) i = slides.length - 1;
+        if (i >= slides.length) i = 0;
+        idx = i;
+        track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+        dots.forEach(function(d, j) { d.classList.toggle('active', j === idx); });
+    }
+    if (prev) prev.addEventListener('click', function() { goTo(idx - 1); });
+    if (next) next.addEventListener('click', function() { goTo(idx + 1); });
+    dots.forEach(function(d, i) { d.addEventListener('click', function() { goTo(i); }); });
+    goTo(0);
+})();
 
-// ===== 弹窗控制 =====
+// ===== 编辑弹窗 =====
+var screenshotsData = {{ (detail_preset.get('screenshots', [])) | tojson }};
+
 function openEditModal() {
     document.getElementById('editModal').classList.add('active');
     document.body.style.overflow = 'hidden';
+    renderScreenshots();
 }
 function closeEditModal() {
     document.getElementById('editModal').classList.remove('active');
     document.body.style.overflow = '';
 }
-// 点击遮罩关闭
 document.getElementById('editModal').addEventListener('click', function(e) {
     if (e.target === this) closeEditModal();
 });
-// ESC 关闭
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeEditModal();
+    if (e.key === 'Escape') { closeEditModal(); closeDocModal(); }
 });
 
-// ===== 模式切换 =====
-function switchModalMode(mode) {
-    document.getElementById('modal_content_mode').value = mode;
-    document.querySelectorAll('#modalModeToggle .mf-mode-btn').forEach(b =>
-        b.classList.toggle('active', b.dataset.mode === mode)
-    );
-    document.getElementById('modalPresetPanel').classList.toggle('active', mode === 'preset');
-    document.getElementById('modalAdvancedPanel').classList.toggle('active', mode === 'advanced');
+/* ===== Doc Modal ===== */
+function openDocModal() {
+    document.getElementById('docModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeDocModal() {
+    document.getElementById('docModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+document.getElementById('docModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDocModal();
+});
 
-    if (mode === 'advanced') {
-        var overview = document.querySelector('#modalPresetPanel textarea[name="overview"]').value.trim();
-        var features = document.querySelector('#modalPresetPanel textarea[name="features"]').value.trim();
-        var screenshots = document.querySelector('#modalPresetPanel textarea[name="screenshots"]').value.trim();
-        var architecture = document.querySelector('#modalPresetPanel textarea[name="architecture"]').value.trim();
-        var md = '';
-        if (overview) md += '## 概述\n\n' + overview + '\n\n';
-        if (features) {
-            var items = features.split('\n').filter(Boolean);
-            md += '## 功能特性\n\n' + items.map(function(f) { return '- ' + f; }).join('\n') + '\n\n';
-        }
-        if (screenshots) {
-            md += '## 截图预览\n\n';
-            screenshots.split('\n').forEach(function(line) {
-                line = line.trim(); if (!line) return;
-                var parts = line.split('|');
-                md += '![' + (parts[1] || '截图') + '](' + parts[0].trim() + ')\n\n';
+// ===== Screenshots =====
+var ssFileInput = document.getElementById('ssFileInput');
+
+function renderScreenshots() {
+    var grid = document.getElementById('ssGrid');
+    grid.innerHTML = '';
+    var total = screenshotsData.length;
+    screenshotsData.forEach(function(s, i) {
+        var card = document.createElement('div');
+        card.className = 'ss-card';
+        card.draggable = true;
+        card.dataset.index = i;
+        card.innerHTML = '<img src="' + s.url + '" alt="' + (s.caption || '') + '" loading="lazy">' +
+            '<button class="ss-card-delete" onclick="deleteScreenshot(' + i + ')" title="删除">✕</button>' +
+            '<div class="ss-card-drag-hint">⠿ 拖拽排序</div>';
+        card.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', i);
+            this.classList.add('dragging');
+        });
+        card.addEventListener('dragend', function() { this.classList.remove('dragging'); });
+        card.addEventListener('dragover', function(e) { e.preventDefault(); });
+        card.addEventListener('dragenter', function(e) { e.preventDefault(); this.classList.add('drag-over'); });
+        card.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+        card.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            var from = parseInt(e.dataTransfer.getData('text/plain'));
+            var to = parseInt(this.dataset.index);
+            if (from !== to) {
+                var item = screenshotsData.splice(from, 1)[0];
+                screenshotsData.splice(to, 0, item);
+                renderScreenshots();
+            }
+        });
+        grid.appendChild(card);
+    });
+    // 追加"添加"卡片
+    var addCard = document.createElement('div');
+    addCard.className = 'ss-card ss-add-card';
+    addCard.innerHTML =
+        '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+        '<span class="ss-add-text">上传截图</span>';
+    addCard.addEventListener('click', function() { ssFileInput.click(); });
+    addCard.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('drag-over'); });
+    addCard.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+    addCard.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        var files = e.dataTransfer.files;
+        if (files.length) uploadFiles(files);
+    });
+    grid.appendChild(addCard);
+    syncScreenshotsInput();
+}
+
+function deleteScreenshot(index) {
+    screenshotsData.splice(index, 1);
+    renderScreenshots();
+}
+
+function syncScreenshotsInput() {
+    var lines = screenshotsData.map(function(s) {
+        return s.url + (s.caption ? '|' + s.caption : '');
+    }).join('\n');
+    document.getElementById('screenshots_input').value = lines;
+}
+
+ssFileInput.addEventListener('change', function(e) {
+    var files = e.target.files;
+    if (!files.length) return;
+    uploadFiles(files);
+});
+
+function uploadFiles(files) {
+    var pending = Array.from(files).filter(function(f) { return f.type.startsWith('image/'); });
+    var completed = 0;
+    pending.forEach(function(file) {
+        var fd = new FormData();
+        fd.append('file', file);
+        fetch('/admin/upload-screenshot', { method: 'POST', body: fd })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.url) { screenshotsData.push({ url: data.url, caption: '' }); }
+            })
+            .catch(function() {})
+            .finally(function() {
+                completed++;
+                if (completed === pending.length) {
+                    renderScreenshots();
+                }
             });
-        }
-        if (architecture) md += '## 架构说明\n\n' + architecture + '\n\n';
-        var editor = document.querySelector('#modalAdvancedPanel textarea[name="detail"]');
-        if (!editor.value.trim() || confirm('切换到 Advanced 将用 Preset 数据生成 Markdown，是否覆盖？')) {
-            if (editor.value.trim() && !confirm('确认覆盖？')) return;
-            editor.value = md.trim();
-        }
+    });
+    if (pending.length === 0) {
+        renderScreenshots();
     }
 }
+
+document.getElementById('editForm').addEventListener('submit', function() {
+    syncScreenshotsInput();
+});
+
+// ===== 文档上传 =====
+(function() {
+    var zone = document.getElementById('docUploadZone');
+    var fileInput = document.getElementById('docFileInput');
+    var hiddenInput = document.getElementById('doc_content_input');
+    var docInfo = document.getElementById('docInfo');
+    var docEmpty = document.getElementById('docEmpty');
+
+    function showDocUploaded() {
+        docInfo.style.display = 'flex';
+        docEmpty.style.display = 'none';
+    }
+    function showDocEmpty() {
+        docInfo.style.display = 'none';
+        docEmpty.style.display = 'block';
+    }
+
+    zone.addEventListener('click', function() { fileInput.click(); });
+    fileInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        if (!file.name.toLowerCase().endsWith('.md')) {
+            alert('只支持 .md 文件');
+            return;
+        }
+        var originalText = zone.querySelector('.m-doc-upload-text');
+        originalText.textContent = '上传中...';
+        zone.style.pointerEvents = 'none';
+
+        var fd = new FormData();
+        fd.append('file', file);
+        fetch('/admin/upload-doc', { method: 'POST', body: fd })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.content) {
+                    hiddenInput.value = data.content;
+                    showDocUploaded();
+                }
+            })
+            .catch(function() { alert('上传失败'); })
+            .finally(function() {
+                originalText.textContent = '上传 .md 文件';
+                zone.style.pointerEvents = '';
+                fileInput.value = '';
+            });
+    });
+
+    window.removeDoc = function() {
+        hiddenInput.value = '';
+        showDocEmpty();
+    };
+})();
 </script>
 {% endblock %}

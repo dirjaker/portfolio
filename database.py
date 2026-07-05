@@ -150,7 +150,11 @@ def init_db():
             is_visible INTEGER DEFAULT 1,
             sort_order INTEGER DEFAULT 0,
             view_count INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            content_mode TEXT DEFAULT 'preset',
+            detail_preset TEXT DEFAULT '{}',
+            doc_content TEXT DEFAULT '',
+            show_screenshots INTEGER DEFAULT 1
         );
 
         CREATE TABLE IF NOT EXISTS site_view (
@@ -201,6 +205,14 @@ def init_db():
         pass
     try:
         cursor.execute("ALTER TABLE project ADD COLUMN detail_preset TEXT DEFAULT '{}'")
+    except:
+        pass
+    try:
+        cursor.execute("ALTER TABLE project ADD COLUMN doc_content TEXT DEFAULT ''")
+    except:
+        pass
+    try:
+        cursor.execute("ALTER TABLE project ADD COLUMN show_screenshots INTEGER DEFAULT 1")
     except:
         pass
 

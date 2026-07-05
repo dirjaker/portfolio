@@ -168,7 +168,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>功能列表 <span class="label-hint">每行一个功能点，支持 Markdown</span></label>
+                    <label>功能特性 <span class="label-hint">每行一个功能点，支持 Markdown</span></label>
                     <textarea name="features" rows="5" placeholder="AI 智能搭配推荐 —— 基于视觉模型&#10;衣物 OCR 管理 —— 拍照自动识别&#10;智能衣橱分类管理">{{ (detail_preset.get('features', []) | join('\n')) if detail_preset and detail_preset.get('features') else '' }}</textarea>
                 </div>
                 
@@ -178,11 +178,15 @@
                     <div style="margin-top: 8px; font-size: 12px; color: #999;">
                         💡 每行一张，支持 URL 或 URL|标题，例如：<code>https://example.com/shot.png|主界面</code>
                     </div>
+                    <label style="display:flex; align-items:center; gap: 8px; margin-top: 10px; cursor:pointer; font-size:13px; font-weight:600; color:#666;">
+                        <input type="checkbox" name="show_screenshots" value="1" {{ 'checked' if not project or project.show_screenshots != 0 else '' }}>
+                        <span>在前台展示截图</span>
+                    </label>
                 </div>
                 
                 <div class="form-group">
-                    <label>架构说明 <span class="label-hint">技术架构、实现细节等，支持 Markdown</span></label>
-                    <textarea name="architecture" rows="8" placeholder="描述项目的架构设计、技术选型、实现思路...&#10;&#10;支持 Markdown 语法：&#10;- 列表&#10;- **粗体**&#10;- `代码`&#10;- 代码块```">{{ detail_preset.get('architecture', '') if detail_preset else '' }}</textarea>
+                    <label>项目详情 <span class="label-hint">技术架构、实现亮点、设计思路等，支持 Markdown</span></label>
+                    <textarea name="architecture" rows="8" placeholder="技术架构、实现亮点、设计思路、技术选型等...&#10;&#10;支持 Markdown 语法：&#10;- 列表&#10;- **粗体**&#10;- `代码`&#10;- 代码块```">{{ detail_preset.get('architecture', '') if detail_preset else '' }}</textarea>
                 </div>
             </div>
             
@@ -297,7 +301,7 @@ function switchMode(mode) {
                 md += '\n';
             });
         }
-        if (architecture) md += '## 架构说明\n\n' + architecture + '\n\n';
+        if (architecture) md += '## 项目详情\n\n' + architecture + '\n\n';
         
         const editor = document.getElementById('detailEditor');
         if (!editor.value.trim() || confirm('切换到 Advanced 模式将用 Preset 数据生成 Markdown，是否覆盖？')) {

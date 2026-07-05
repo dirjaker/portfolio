@@ -162,7 +162,7 @@
             {% if visible_projects %}
             <div class="card-grid" id="visibleGrid">
                 {% for p in visible_projects %}
-                <div class="project-card" data-id="{{ p.id }}" onclick="window.location.href='/project/{{ p.slug }}'">
+                <div class="project-card" data-id="{{ p.id }}" onclick="window.location.href='/project/{{ p.slug }}?from=admin'">
                     <div class="card-header">
                         <div class="card-title-group">
                             <div class="card-title">{{ p.name }}</div>
@@ -222,7 +222,7 @@
             {% if hidden_projects %}
             <div class="card-grid" id="hiddenGrid">
                 {% for p in hidden_projects %}
-                <div class="project-card hidden-card" data-id="{{ p.id }}" onclick="window.location.href='/project/{{ p.slug }}'">
+                <div class="project-card hidden-card" data-id="{{ p.id }}" onclick="window.location.href='/project/{{ p.slug }}?from=admin'">
                     <div class="card-header">
                         <div class="card-title-group">
                             <div class="card-title">{{ p.name }}</div>

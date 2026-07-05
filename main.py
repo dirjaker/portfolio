@@ -4,8 +4,9 @@ import shutil
 import psutil
 import markdown as md_lib
 import bleach
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, Query, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -38,11 +39,36 @@ def render_markdown(text: str) -> str:
     safe_html = bleach.clean(html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True)
     return safe_html
 
-def build_preset_html(preset: dict) -> str:
+def build_preset_html(preset: dict, show_screenshots: bool = True) -> str:
     """将 Preset 模式的结构化字段拼成 HTML"""
     if not preset:
         return ''
     parts = []
+    
+    screenshots = preset.get('screenshots', [])
+    if show_screenshots and screenshots and isinstance(screenshots, list):
+        slides = []
+        for s in screenshots:
+            if not s.get('url'):
+                continue
+            url = bleach.clean(s['url'], tags=[], attributes={}, strip=True)
+            caption = bleach.clean(s.get('caption', ''), tags=[], attributes={}, strip=True)
+            slides.append(
+                '<div class="ss-slide">'
+                '<img src="' + url + '" alt="' + caption + '" loading="lazy">'
+                '</div>'
+            )
+        if slides:
+            imgs_html = ''.join(slides)
+            dots_html = ''.join('<span class="ss-dot"></span>' for _ in slides)
+            parts.append(
+                '<div class="ss-carousel" id="ss-carousel">'
+                '<div class="ss-viewport"><div class="ss-track">' + imgs_html + '</div></div>'
+                '<button class="ss-arrow ss-prev" type="button">&lsaquo;</button>'
+                '<button class="ss-arrow ss-next" type="button">&rsaquo;</button>'
+                '<div class="ss-dots">' + dots_html + '</div>'
+                '</div>'
+            )
     
     overview = preset.get('overview', '').strip()
     if overview:
@@ -54,26 +80,18 @@ def build_preset_html(preset: dict) -> str:
         if items:
             parts.append(f'<div class="preset-section"><h2>功能特性</h2><ul class="feature-list">{items}</ul></div>')
     
-    screenshots = preset.get('screenshots', [])
-    if screenshots and isinstance(screenshots, list):
-        imgs = ''.join(
-            f'<figure class="screenshot-item">'
-            f'<img src="{bleach.clean(s.get("url", ""), tags=[], attributes={}, strip=True)}" '
-            f'alt="{bleach.clean(s.get("caption", ""), tags=[], attributes={}, strip=True)}" loading="lazy">'
-            f'{"<figcaption>" + bleach.clean(s["caption"], tags=[], attributes={}, strip=True) + "</figcaption>" if s.get("caption") else ""}'
-            f'</figure>'
-            for s in screenshots if s.get('url')
-        )
-        if imgs:
-            parts.append(f'<div class="preset-section"><h2>截图预览</h2><div class="screenshot-gallery">{imgs}</div></div>')
-    
     architecture = preset.get('architecture', '').strip()
     if architecture:
-        parts.append(f'<div class="preset-section"><h2>架构说明</h2><div class="preset-architecture">{render_markdown(architecture)}</div></div>')
+        parts.append(f'<div class="preset-section"><h2>项目详情</h2><div class="preset-architecture">{render_markdown(architecture)}</div></div>')
     
     return '\n'.join(parts)
 
-app = FastAPI(title="Portfolio")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+app = FastAPI(title="Portfolio", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
@@ -83,10 +101,6 @@ def get_theme_vars():
     theme = db.execute("SELECT css_vars FROM theme WHERE is_active = 1 LIMIT 1").fetchone()
     db.close()
     return json.loads(theme["css_vars"]) if theme else {}
-
-@app.on_event("startup")
-def startup():
-    init_db()
 
 # --- Public API ---
 @app.get("/api/projects")
@@ -185,7 +199,7 @@ def project_detail(request: Request, slug: str):
             preset = json.loads(project.get('detail_preset') or '{}')
         except (json.JSONDecodeError, TypeError):
             preset = {}
-        project['detail_html'] = build_preset_html(preset)
+        project['detail_html'] = build_preset_html(preset, show_screenshots=project.get('show_screenshots', 1))
         project['detail_mode'] = 'preset'
     else:
         project['detail_html'] = render_markdown(project.get('detail') or '')
@@ -200,10 +214,22 @@ def project_detail(request: Request, slug: str):
     except (json.JSONDecodeError, TypeError):
         detail_preset = {}
     
+    # 渲染文档 Markdown
+    doc_raw = project.get('doc_content') or ''
+    doc_html = render_markdown(doc_raw) if doc_raw else ''
+    
+    # 确定返回链接
+    from_param = request.query_params.get("from", "")
+    from_admin = from_param == "admin"
+    back_url = "/admin/projects" if from_admin else "/"
+    
     return templates.TemplateResponse(request, "project_detail.html", {
         "project": project, "theme_vars": theme_vars,
         "is_admin": is_admin,
-        "detail_preset": detail_preset
+        "detail_preset": detail_preset,
+        "back_url": back_url,
+        "from_admin": from_admin,
+        "doc_html": doc_html
     })
 
 # --- Auth ---
@@ -379,7 +405,9 @@ def admin_project_save(
     is_visible: int = Form(0), sort_order: int = Form(0),
     content_mode: str = Form("preset"),
     overview: str = Form(""), features: str = Form(""),
-    screenshots: str = Form(""), architecture: str = Form("")):
+    screenshots: str = Form(""), architecture: str = Form(""),
+    doc_content: str = Form(""),
+    show_screenshots: int = Form(1)):
     require_admin(request)
     
     detail_preset = {}
@@ -410,19 +438,20 @@ def admin_project_save(
     if pid > 0:
         db.execute("""UPDATE project SET name=?, slug=?, description=?, detail=?, tech_stack=?, category=?,
             github_url=?, web_url=?, pages_url=?, show_github=?, show_web=?, show_pages=?, show_tech=?,
-            show_detail=?, is_visible=?, sort_order=?, content_mode=?, detail_preset=? WHERE id=?""",
+            show_detail=?, is_visible=?, sort_order=?, content_mode=?, detail_preset=?, doc_content=?,
+            show_screenshots=? WHERE id=?""",
             (name, slug, description, detail, tech_stack, category, github_url, web_url, pages_url,
              show_github, show_web, show_pages, show_tech, show_detail, is_visible, sort_order,
-             content_mode, detail_preset_json, pid))
+             content_mode, detail_preset_json, doc_content, show_screenshots, pid))
         saved_slug = slug
     else:
         db.execute("""INSERT INTO project (name, slug, description, detail, tech_stack, category, github_url,
             web_url, pages_url, show_github, show_web, show_pages, show_tech, show_detail, is_visible, sort_order,
-            content_mode, detail_preset)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            content_mode, detail_preset, doc_content, show_screenshots)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (name, slug, description, detail, tech_stack, category, github_url, web_url, pages_url,
              show_github, show_web, show_pages, show_tech, show_detail, is_visible, sort_order,
-             content_mode, detail_preset_json))
+             content_mode, detail_preset_json, doc_content, show_screenshots))
         saved_slug = slug
     db.commit()
     db.close()
@@ -441,6 +470,34 @@ def admin_project_delete(request: Request, pid: int):
     db.commit()
     db.close()
     return RedirectResponse("/admin/projects", status_code=303)
+
+@app.post("/admin/upload-screenshot")
+async def admin_upload_screenshot(request: Request, file: UploadFile = File(...)):
+    require_admin(request)
+    import uuid, os
+    # Validate file type
+    if not file.content_type or not file.content_type.startswith('image/'):
+        return JSONResponse({"error": "只支持图片文件"}, status_code=400)
+    # Generate unique filename
+    ext = os.path.splitext(file.filename or '.png')[1] or '.png'
+    filename = f"screenshot_{uuid.uuid4().hex[:8]}{ext}"
+    save_dir = Path("static/screenshots")
+    save_dir.mkdir(parents=True, exist_ok=True)
+    save_path = save_dir / filename
+    # Save file
+    content = await file.read()
+    with open(save_path, "wb") as f:
+        f.write(content)
+    return JSONResponse({"url": f"/static/screenshots/{filename}"})
+
+@app.post("/admin/upload-doc")
+async def admin_upload_doc(request: Request, file: UploadFile = File(...)):
+    require_admin(request)
+    if not file.filename or not file.filename.lower().endswith('.md'):
+        return JSONResponse({"error": "只支持 .md 文件"}, status_code=400)
+    content = await file.read()
+    text = content.decode('utf-8')
+    return JSONResponse({"content": text, "filename": file.filename})
 
 @app.post("/admin/view-mode")
 async def admin_set_view_mode(request: Request):
@@ -637,18 +694,110 @@ def admin_theme_delete(request: Request, tid: int):
 def admin_analytics(request: Request):
     require_admin(request)
     db = get_db()
-    projects = db.execute("SELECT name, slug, view_count FROM project ORDER BY view_count DESC").fetchall()
-    daily_views = db.execute(
-        "SELECT DATE(viewed_at) as day, COUNT(*) as count FROM site_view "
-        "GROUP BY DATE(viewed_at) ORDER BY day DESC LIMIT 30"
+    
+    # 汇总数据
+    total_views = db.execute("SELECT SUM(view_count) FROM project").fetchone()[0] or 0
+    total_projects = db.execute("SELECT COUNT(*) FROM project WHERE is_visible = 1").fetchone()[0] or 0
+    has_data = db.execute("SELECT COUNT(*) FROM site_view").fetchone()[0] or 0
+    
+    # 每日访问数据（用于热力图）
+    daily_data = db.execute(
+        "SELECT DATE(viewed_at) as day, COUNT(*) as count "
+        "FROM site_view GROUP BY day ORDER BY day ASC"
+    ).fetchall() if has_data else []
+    
+    # 页面访问分布（排除 home 页面）
+    page_distribution = db.execute(
+        "SELECT page, COUNT(*) as count FROM site_view "
+        "WHERE page != 'home' GROUP BY page ORDER BY count DESC LIMIT 10"
+    ).fetchall() if has_data else []
+    
+    # 周分布
+    dow_data = []
+    if has_data:
+        raw_dow = {
+            r["dow"]: r["count"]
+            for r in db.execute(
+                "SELECT CAST(strftime('%w', viewed_at) AS INTEGER) as dow, COUNT(*) as count "
+                "FROM site_view GROUP BY dow ORDER BY dow ASC"
+            ).fetchall()
+        }
+        dow_data = [{"dow": d, "count": raw_dow.get(d, 0)} for d in range(7)]
+    
+    # 项目访问排名（全量）
+    project_views = db.execute(
+        "SELECT name, slug, view_count FROM project ORDER BY view_count DESC"
     ).fetchall()
+    
     db.close()
     theme_vars = get_theme_vars()
     return templates.TemplateResponse(request, "admin/analytics.html", {
         "theme_vars": theme_vars,
-        "projects": [dict(p) for p in projects],
-        "daily_views": [dict(d) for d in daily_views]
+        "total_views": total_views,
+        "total_projects": total_projects,
+        "has_data": has_data,
+        "daily_data": [dict(d) for d in daily_data],
+        "page_distribution": [dict(d) for d in page_distribution],
+        "dow_data": [dict(d) for d in dow_data],
+        "project_views": [dict(p) for p in project_views],
     })
+
+@app.get("/api/admin/analytics/heatmap")
+def analytics_heatmap_api(request: Request, offset: int = 0):
+    """返回 2 个月窗口的热力图数据，offset 每 +1 往前推 2 个月"""
+    require_admin(request)
+    db = get_db()
+
+    today = datetime.today().date()
+    end_date = today - timedelta(days=offset * 365)
+    start_date = end_date - timedelta(days=365)
+
+    daily = db.execute(
+        "SELECT DATE(viewed_at) as day, COUNT(*) as count "
+        "FROM site_view WHERE DATE(viewed_at) BETWEEN ? AND ? "
+        "GROUP BY day ORDER BY day ASC",
+        (start_date.isoformat(), end_date.isoformat())
+    ).fetchall() if db.execute("SELECT COUNT(*) FROM site_view").fetchone()[0] else []
+
+    active = [d for d in daily if d["count"] > 0]
+    total_active = len(active)
+    total_days = (end_date - start_date).days
+    avg = round(sum(d["count"] for d in active) / total_active, 1) if active else 0
+    highest = max(d["count"] for d in active) if active else 0
+
+    db.close()
+    return {
+        "daily_data": [dict(d) for d in daily],
+        "start_date": start_date.isoformat(),
+        "end_date": end_date.isoformat(),
+        "total_days": total_days,
+        "active_days": total_active,
+        "avg": avg,
+        "highest": highest,
+        "can_forward": offset > 0,
+    }
+
+@app.get("/admin/analytics/export")
+def admin_analytics_export(request: Request):
+    require_admin(request)
+    db = get_db()
+    rows = db.execute(
+        "SELECT strftime('%Y-%m-%d %H:%M:%S', viewed_at) as time, page, ip_address "
+        "FROM site_view ORDER BY viewed_at DESC"
+    ).fetchall()
+    db.close()
+    import csv, io
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(["时间", "页面", "IP地址"])
+    for r in rows:
+        w.writerow([r["time"], r["page"], r["ip_address"]])
+    from fastapi.responses import Response
+    return Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=analytics_export.csv"}
+    )
 
 if __name__ == "__main__":
     import uvicorn
