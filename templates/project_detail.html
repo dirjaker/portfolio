@@ -376,7 +376,7 @@ AI 穿搭推荐
     overflow: hidden;
     border-radius: 12px;
     border: 1px solid var(--border);
-    background: var(--bg-secondary);
+    background: var(--bg-primary);
 }
 .ss-track {
     display: flex;
@@ -386,12 +386,18 @@ AI 穿搭推荐
     flex: 0 0 100%;
     min-width: 0;
 }
+.ss-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+}
 .ss-slide img {
     width: 100%;
     height: auto;
     display: block;
-    aspect-ratio: 16/9;
-    object-fit: cover;
+    max-height: 75vh;
+    object-fit: contain;
 }
 .ss-arrow {
     position: absolute;
